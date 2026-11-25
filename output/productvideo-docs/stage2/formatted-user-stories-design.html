@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="docx-page-size" content="A4">
+<title>ProductVideo AI 用户故事与产品设计说明</title>
+<style>
+:root {
+  --typography-fontFamily-heading: "Microsoft YaHei", "微软雅黑", sans-serif;
+  --typography-fontFamily-body: "SimSun", "宋体", serif;
+  --typography-fontFamily-mono: "Consolas", monospace;
+  --typography-fontSize-h1: 22pt;
+  --typography-fontSize-h2: 16pt;
+  --typography-fontSize-h3: 13pt;
+  --typography-fontSize-h4: 12pt;
+  --typography-fontSize-body: 12pt;
+  --typography-fontSize-small: 10.5pt;
+  --typography-lineHeight-body: 1.6;
+  --typography-lineHeight-heading: 1.3;
+  --typography-fontWeight-bold: 700;
+  --typography-fontWeight-normal: 400;
+  --layout-margin: 2.5cm;
+  --layout-contentWidth: 15.6cm;
+  --fs-h1: var(--typography-fontSize-h1);
+  --fs-h2: var(--typography-fontSize-h2);
+  --fs-h3: var(--typography-fontSize-h3);
+  --fs-h4: var(--typography-fontSize-h4);
+  --fs-body: var(--typography-fontSize-body);
+  --fs-small: var(--typography-fontSize-small);
+  --fs-cover-title: 30pt;
+  --ff-heading: var(--typography-fontFamily-heading);
+  --ff-body: var(--typography-fontFamily-body);
+  --ff-mono: var(--typography-fontFamily-mono);
+  --lh-body: var(--typography-lineHeight-body);
+  --lh-heading: var(--typography-lineHeight-heading);
+  --fw-bold: var(--typography-fontWeight-bold);
+  --fw-normal: var(--typography-fontWeight-normal);
+  --color-primary: #1565C0;
+  --color-on-primary: #FFFFFF;
+  --color-text: #212121;
+  --color-muted: #616161;
+  --color-border: #D5DBE1;
+  --color-bg: #F5F7FA;
+  --color-callout-bg: #EEF4FB;
+  --color-code-bg: #F2F4F7;
+  --spacing-paragraph: 0.75em;
+  --spacing-section: 1.6em;
+  --spacing-block: 1em;
+  --margin-page: var(--layout-margin);
+  --page-content-width: var(--layout-contentWidth);
+}
+@page { margin: var(--margin-page); @bottom-center { content: counter(page); } }
+@page cover { @bottom-center { content: none; } }
+section[role="cover"] { page: cover; }
+body {
+  font-family: var(--ff-body);
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  line-height: var(--lh-body);
+  max-width: var(--page-content-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+p { font-family: var(--ff-body); font-size: var(--fs-body); color: var(--color-text); line-height: var(--lh-body); text-indent: 2em; text-align: justify; margin: 0 0 var(--spacing-paragraph) 0; }
+h1 { font-family: var(--ff-heading); font-size: var(--fs-h1); color: var(--color-primary); font-weight: var(--fw-bold); line-height: var(--lh-heading); margin: var(--spacing-section) 0 var(--spacing-block) 0; }
+h2 { font-family: var(--ff-heading); font-size: var(--fs-h2); color: var(--color-primary); font-weight: var(--fw-bold); line-height: var(--lh-heading); margin: var(--spacing-section) 0 var(--spacing-block) 0; }
+h3 { font-family: var(--ff-heading); font-size: var(--fs-h3); color: var(--color-text); font-weight: var(--fw-bold); line-height: var(--lh-heading); margin: var(--spacing-block) 0 0.5em 0; }
+h4 { font-family: var(--ff-heading); font-size: var(--fs-h4); color: var(--color-primary); font-weight: var(--fw-bold); line-height: var(--lh-heading); margin: var(--spacing-block) 0 0.4em 0; }
+strong { font-weight: var(--fw-bold); }
+ul, ol { font-family: var(--ff-body); font-size: var(--fs-body); line-height: var(--lh-body); margin: 0 0 var(--spacing-paragraph) 0; padding-left: 2em; }
+li { font-family: var(--ff-body); font-size: var(--fs-body); line-height: var(--lh-body); margin-bottom: 0.3em; }
+table { width: 100%; border-collapse: collapse; margin: var(--spacing-block) 0; font-family: var(--ff-body); font-size: var(--fs-small); }
+caption { font-family: var(--ff-heading); font-size: var(--fs-small); color: var(--color-muted); text-align: left; margin-bottom: 0.4em; }
+th { background: var(--color-primary); color: var(--color-on-primary); font-weight: var(--fw-bold); text-align: left; padding: 6px 8px; border: 1px solid var(--color-border); }
+td { padding: 6px 8px; border: 1px solid var(--color-border); vertical-align: top; }
+code { font-family: var(--ff-mono); font-size: var(--fs-small); background: var(--color-code-bg); }
+pre { font-family: var(--ff-mono); font-size: var(--fs-small); background: var(--color-code-bg); border: 1px solid var(--color-border); padding: 10px; margin: var(--spacing-block) 0; line-height: 1.4; white-space: pre-wrap; }
+pre code { font-family: var(--ff-mono); font-size: var(--fs-small); background: transparent; }
+.toc-title { font-family: var(--ff-heading); font-size: var(--fs-h1); color: var(--color-primary); font-weight: var(--fw-bold); text-align: center; text-indent: 0; margin-bottom: var(--spacing-section); }
+.toc-list, .toc-list ol, .toc-list ul { list-style: none; padding-left: 0; }
+.toc-list li { margin-bottom: 0.45em; }
+.toc-list a { color: var(--color-text); text-decoration: none; }
+.cover-title { font-family: var(--ff-heading); font-size: var(--fs-cover-title); color: var(--color-primary); font-weight: var(--fw-bold); text-align: center; text-indent: 0; line-height: 1.35; margin: 2.5cm 0 0.8cm 0; }
+.cover-subtitle { font-family: var(--ff-heading); font-size: var(--fs-h2); color: var(--color-muted); text-align: center; text-indent: 0; margin-bottom: 1.5cm; }
+.cover-meta { font-family: var(--ff-body); font-size: var(--fs-body); color: var(--color-muted); text-align: center; text-indent: 0; margin-bottom: 0.6em; }
+.callout { border-left: 4px solid var(--color-primary); background: var(--color-callout-bg); padding: 8px 12px; text-indent: 0; margin: var(--spacing-block) 0; }
+</style>
+</head>
+<body>
+<section role="cover">
+  <p class="cover-title">ProductVideo AI</p>
+  <p class="cover-subtitle">用户故事与产品设计说明</p>
+  <p class="cover-meta">用户故事 · 业务逻辑 · 原型思路 · 交互流程</p>
+  <p class="cover-meta">基于《产品需求文档 PRD V1.0（草稿）》扩展编写</p>
+  <p class="cover-meta">资深产品经理 Agent（司南） · 2026-11-25</p>
+</section>
+<section role="cover">
+<nav class="doc-toc" aria-label="文档目录">
+  <p class="toc-title">目录</p>
+  <ol class="toc-list"><li><a href="#s1">1. 用户故事</a></li><li><a href="#s2">2. 产品业务逻辑</a></li><li><a href="#s3">3. 原型思路</a></li><li><a href="#s4">4. 交互流程</a></li><li><a href="#s5">5. 需求追踪矩阵（RTM）</a></li><li><a href="#s6">6. 假设与待确认事项</a></li></ol>
+</nav>
+</section>
+<section role="body" data-page-restart="1">
+<p>本文档基于《ProductVideo AI 产品需求文档 V1.0（草稿）》扩展编写，聚焦四件事：把需求拆成可验收的用户故事、梳理可开发的业务逻辑、给出可落地的原型思路、定义可测试的交互流程。文档不新增 PRD 之外的功能范围，所有数值、状态、规则均沿用 PRD 与配套技术架构的既定口径；涉及推断的内容均显式标注为「假设」，待真实用户验证。</p>
+<table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>文档名称</td><td>ProductVideo AI 用户故事与产品设计说明</td></tr><tr><td>版本</td><td>V1.0</td></tr><tr><td>编写角色</td><td>资深产品经理 Agent（司南）</td></tr><tr><td>编写日期</td><td>2026-11-25</td></tr><tr><td>上游依据</td><td>《ProductVideo AI 产品需求文档 V1.0（草稿）》《电商商品视频生成器：简化版技术架构与实施方案》</td></tr><tr><td>适用范围</td><td>UI 设计、交互设计、研发排期、测试用例编写</td></tr><tr><td>状态</td><td>供评审</td></tr></tbody></table>
+<h2 id="s1">1. 用户故事</h2>
+<p>用户故事用于把功能需求还原到真实场景，保证每一条需求都能被理解、被估算、被验收。本节先给出用户画像，再按模块列出用户故事，最后补上用户旅程与场景分层。</p>
+<h3>1.1 用户画像</h3>
+<p>以下画像依据 PRD 中的三类角色与首期垂直品类（美妆护肤）构建，属于<strong>待验证假设</strong>，未经真实用户调研；上线后需通过试用客户访谈修正。</p>
+<table><thead><tr><th>画像</th><th>身份背景</th><th>核心目标</th><th>使用场景</th><th>典型痛点</th><th>能力水平</th></tr></thead><tbody><tr><td>小林（主角，普通用户）</td><td>中小美妆护肤电商卖家，自营 1 个店铺，上架 5～50 个 SKU</td><td>不学剪辑也能快速产出可发布的商品短视频</td><td>新品上架、日常上新、促销活动</td><td>不会剪辑；外包单条成本高；上新频繁、反复制作；视频风格不统一</td><td>熟练使用电商后台，不会使用剪辑软件</td></tr><tr><td>Amy（付费用户）</td><td>成长型美妆品牌运营，负责多条产品线</td><td>批量产出视频并统一品牌视觉</td><td>大促集中上新、多 SKU 批量生成</td><td>免费额度不够；导出带水印；品牌色与 Logo 难以统一</td><td>熟悉营销工具，愿意为效率付费</td></tr><tr><td>运营者（管理员，内部）</td><td>产品运营者本人</td><td>维护模板、监控任务、掌握用量</td><td>模板上下架、异常任务排查、用量盘点</td><td>模板配置分散；任务失败不易发现</td><td>技术背景，熟悉后台系统</td></tr></tbody></table>
+<h3>1.2 用户故事清单</h3>
+<p>优先级采用 MoSCoW：Must（必须，支撑核心闭环）、Should（应该，提升完整性）、Could（可以，锦上添花）。每条故事均给出 Given/When/Then 验收标准，可直接转为测试用例。编号与第 5 节需求追踪矩阵（RTM）对应。</p>
+<h4>1.2.1 用户与额度</h4>
+<table><thead><tr><th>编号</th><th>用户故事</th><th>优先级</th><th>验收标准（Given/When/Then）</th></tr></thead><tbody><tr><td>US-01</td><td>作为新用户，我想用邮箱注册账号，以便开始使用视频生成服务</td><td>Must</td><td>Given 未注册的邮箱，When 填写合法邮箱与密码并提交，Then 账号创建成功并进入 Dashboard；Given 已注册邮箱，When 重复注册，Then 提示邮箱已存在且不创建新账号</td></tr><tr><td>US-02</td><td>作为用户，我想登录和退出，以便保护我的商品和视频数据</td><td>Must</td><td>Given 正确凭据，When 登录，Then 进入 Dashboard 并保持会话；Given 未登录，When 访问受保护页面，Then 跳转登录页；When 退出，Then 会话清除，返回登录页</td></tr><tr><td>US-03</td><td>作为用户，我想查看剩余生成额度，以便决定是否继续生成</td><td>Must</td><td>Given 已登录用户，When 打开 Dashboard 或创作页，Then 显示剩余次数；Given 无任何生成记录，Then 显示初始 3 次（新用户）</td></tr></tbody></table>
+<h4>1.2.2 商品管理</h4>
+<table><thead><tr><th>编号</th><th>用户故事</th><th>优先级</th><th>验收标准（Given/When/Then）</th></tr></thead><tbody><tr><td>US-04</td><td>作为卖家，我想新增商品并上传主图，以便作为视频生成素材</td><td>Must</td><td>Given 已登录，When 填写商品名称、上传 JPG/PNG/WebP 且 ≤10 MB 的图片并保存，Then 商品出现在列表且图片可被后续创作读取；Given 缺少必填项或图片超限，Then 明确提示错误且不创建</td></tr><tr><td>US-05</td><td>作为卖家，我想编辑商品资料与替换图片，以便修正信息</td><td>Must</td><td>Given 已有商品，When 修改名称/描述/价格/卖点或替换图片并保存，Then 更新生效且引用该商品的草稿同步读取新值</td></tr><tr><td>US-06</td><td>作为卖家，我想删除不需要的商品，以便保持列表整洁</td><td>Should</td><td>Given 商品存在，When 确认删除，Then 商品移除且仅清理该用户所属的文件；Given 商品已被视频任务引用，Then 历史视频不受影响</td></tr><tr><td>US-07</td><td>作为卖家，我想查看商品列表，以便快速选择创作素材</td><td>Must</td><td>Given 已登录，When 打开商品页，Then 仅展示本人商品（含主图、名称、创建时间）；Given 无商品，Then 展示空状态与「新增商品」入口</td></tr></tbody></table>
+<h4>1.2.3 AI 文案</h4>
+<table><thead><tr><th>编号</th><th>用户故事</th><th>优先级</th><th>验收标准（Given/When/Then）</th></tr></thead><tbody><tr><td>US-08</td><td>作为卖家，我想让 AI 根据商品资料生成标题、副标题、卖点和 CTA，以便省去撰写文案的时间</td><td>Must</td><td>Given 商品资料完整，When 触发生成，Then 返回符合预定义 JSON Schema 的字段；Given 商品描述缺失，Then 基于已有字段生成或提示补充，不编造功效/认证</td></tr><tr><td>US-09</td><td>作为卖家，我想编辑 AI 生成的文案，以便确保表述符合我的品牌与合规要求</td><td>Must</td><td>Given AI 文案已生成，When 修改标题/副标题/卖点/CTA，Then 保存修改并用于后续渲染；Given 文案超出模板长度限制，Then 阻止进入预览并提示超限</td></tr><tr><td>US-10</td><td>作为卖家，我想重新生成文案，以便在结果不满意时换一版</td><td>Should</td><td>Given 已有 AI 文案，When 点击重新生成，Then 返回新一版且不覆盖用户已手工编辑的字段（除非用户确认）</td></tr></tbody></table>
+<h4>1.2.4 模板与视频创作</h4>
+<table><thead><tr><th>编号</th><th>用户故事</th><th>优先级</th><th>验收标准（Given/When/Then）</th></tr></thead><tbody><tr><td>US-11</td><td>作为卖家，我想浏览并选择视频模板，以便匹配不同营销目的</td><td>Must</td><td>Given 已登录，When 打开模板页，Then 展示已启用模板（新品展示/卖点介绍/促销活动/高级品牌展示）；Given 模板被停用，Then 不可选择</td></tr><tr><td>US-12</td><td>作为卖家，我想配置品牌色、Logo 和背景音乐，以便视频符合我的品牌调性</td><td>Should</td><td>Given 已选模板，When 配置可选项并保存，Then 预览同步反映配置；Given 未配置，Then 使用模板默认值</td></tr><tr><td>US-13</td><td>作为卖家，我想在提交前预览视频效果，以便避免生成后才发现问题</td><td>Must</td><td>Given 文案与参数已就绪，When 打开预览，Then 使用 Remotion Player 播放预览；Given 必填参数缺失，Then 预览区提示缺失项</td></tr><tr><td>US-14</td><td>作为卖家，我想提交生成任务，以便获得可下载的 MP4 视频</td><td>Must</td><td>Given 文案通过 Schema 校验且额度充足，When 提交，Then 创建 pending 任务、原子扣减 1 次额度并进入视频管理页；Given 额度为 0，Then 阻止提交并提示升级</td></tr></tbody></table>
+<h4>1.2.5 任务与视频管理</h4>
+<table><thead><tr><th>编号</th><th>用户故事</th><th>优先级</th><th>验收标准（Given/When/Then）</th></tr></thead><tbody><tr><td>US-15</td><td>作为卖家，我想查看任务生成进度，以便知道何时可以下载</td><td>Must</td><td>Given 已提交任务，When 打开视频管理页，Then 显示当前状态（pending/processing/completed/failed/cancelled）；Given 状态变化，Then 通过定时刷新或轮询更新</td></tr><tr><td>US-16</td><td>作为卖家，我想查看生成完成的视频，以便确认效果</td><td>Must</td><td>Given 任务状态为 completed，When 点击预览，Then 在线播放 MP4；Given 任务未完成，Then 预览入口不可用并显示状态</td></tr><tr><td>US-17</td><td>作为卖家，我想下载 MP4 视频，以便发布到电商/社交渠道</td><td>Must</td><td>Given 任务已完成且为本人所有，When 点击下载，Then 通过鉴权接口返回文件；Given 越权请求，Then 拒绝访问</td></tr><tr><td>US-18</td><td>作为卖家，我想用原始参数重新生成视频，以便调整后再次产出</td><td>Should</td><td>Given 任务处于 failed 或 completed，When 点击重新生成，Then 以原参数创建新任务并重新占用额度（失败任务按规则先返还再占用）</td></tr><tr><td>US-19</td><td>作为卖家，我想删除视频，以便清理不需要的文件</td><td>Should</td><td>Given 视频为本人所有，When 二次确认删除，Then 同时移除数据库记录与本地文件；Given 取消确认，Then 不做任何删除</td></tr></tbody></table>
+<h4>1.2.6 后台管理</h4>
+<table><thead><tr><th>编号</th><th>用户故事</th><th>优先级</th><th>验收标准（Given/When/Then）</th></tr></thead><tbody><tr><td>US-20</td><td>作为运营者，我想启停模板，以便控制哪些模板对外可见</td><td>Should</td><td>Given 管理员身份，When 停用某模板，Then 用户模板列表不再展示该模板且不新增该模板任务</td></tr><tr><td>US-21</td><td>作为运营者，我想监控任务状态，以便及时发现卡住或失败的任务</td><td>Should</td><td>Given 管理员身份，When 打开任务监控，Then 按状态筛选任务并看到错误信息；Given 任务长时间 processing，Then 可识别并按超时机制处理</td></tr><tr><td>US-22</td><td>作为运营者，我想查看用量统计，以便掌握生成量与成本</td><td>Could</td><td>Given 管理员身份，When 打开用量统计，Then 展示按用户/按时间的生成次数汇总</td></tr></tbody></table>
+<h3>1.3 用户旅程地图</h3>
+<p>按「感知 → 进入 → 操作 → 完成 → 离开」梳理主角小林的关键触点，标注目标、行为、痛点与机会点。</p>
+<table><thead><tr><th>阶段</th><th>用户目标</th><th>用户行为</th><th>痛点</th><th>产品机会点</th></tr></thead><tbody><tr><td>感知</td><td>找到省事的视频制作方式</td><td>看到工具介绍/试用邀请</td><td>不信「一键生成」的质量</td><td>用模板预览与真实样片建立信任</td></tr><tr><td>进入</td><td>快速开始，不被注册劝退</td><td>邮箱注册、进入 Dashboard</td><td>注册流程繁琐</td><td>极简注册 + 新用户 3 次免费额度明示</td></tr><tr><td>操作</td><td>把商品变成视频</td><td>上传图片 → 选模板 → 生成/改文案 → 预览 → 提交</td><td>不会写文案、担心参数填错</td><td>AI 文案可编辑 + 实时预览 + 缺失项提示</td></tr><tr><td>完成</td><td>拿到可发布的视频</td><td>等待生成、查看结果、下载</td><td>等待时不知进度、担心失败</td><td>状态可视化 + 失败自动返还额度</td></tr><tr><td>离开</td><td>复用与回访</td><td>分享视频、下次继续上新</td><td>每次从头开始</td><td>商品 reusable + 模板复用 + 历史视频沉淀</td></tr></tbody></table>
+<h3>1.4 场景设计三层次</h3>
+<table><thead><tr><th>层次</th><th>场景</th><th>说明</th></tr></thead><tbody><tr><td>主流程</td><td>新品发布：登录 → 选商品 → 选新品展示模板 → AI 文案 → 编辑预览 → 提交 → 下载</td><td>用户完成核心任务的最短路径，无阻断</td></tr><tr><td>分支流程</td><td>创作时现场创建新商品；AI 结果不满意重新生成；额度不足时中止并提示升级；未配置品牌项时使用模板默认值</td><td>覆盖主要条件分支</td></tr><tr><td>异常流程</td><td>图片格式/大小错误；AI 生成失败可重试；渲染失败记录错误并返还额度；Worker 异常退出后任务超时恢复；越权访问被拒绝；磁盘空间不足告警</td><td>提示明确、可恢复、有兜底</td></tr></tbody></table>
+<h2 id="s2">2. 产品业务逻辑</h2>
+<p>本节把 PRD 中的功能点串成可开发的业务逻辑：先给主流程与角色泳道，再定义任务状态机、额度逻辑、规则归类、数据关系与权限模型。</p>
+<h3>2.1 核心业务主流程与泳道</h3>
+<p>视频生成是产品的核心价值链路，涉及用户、前端、API/数据库、Worker/Remotion、文件系统五方协作。</p>
+<pre><code class="language-text">用户        前端(Next.js)      API + PostgreSQL        Worker + Remotion      本地磁盘
+ |              |                    |                       |                  |
+ | 选商品/模板   |                    |                       |                  |
+ |-------------&gt;|  读取商品/模板       |                       |                  |
+ |              |-------------------&gt;|                       |                  |
+ | 生成AI文案    |                    |                       |                  |
+ |-------------&gt;|  AI 文案请求         |                       |                  |
+ |              |-------------------&gt;| (调用 AI,Schema 校验)   |                  |
+ | 编辑/预览     |  Remotion Player   |                       |                  |
+ |&lt;-----------------------------------------------------------------------------|
+ | 提交生成      |                    |                       |                  |
+ |-------------&gt;|  建任务+扣额度(事务) |                       |                  |
+ |              |-------------------&gt;|  status=pending        |                  |
+ |              |                    |&lt;--领取锁定(行锁)---------|                  |
+ |              |                    |  status=processing     |  组装参数/渲染     |
+ |              |                    |----------------------&gt;|  写 input.json      |
+ |              |                    |                       |-----------------&gt;| temp.mp4
+ |              |                    |                       |  生成缩略图/移动文件 |
+ |              |                    |                       |-----------------&gt;| videos/{job}.mp4
+ |              |                    |&lt;--completed/failed-----|                  |
+ | 查看/下载     |  轮询任务状态        |                       |                  |
+ |-------------&gt;|-------------------&gt;|  鉴权返回文件          |                  |
+ |&lt;---------------------------------|-------------------------------------------|</code></pre>
+<p>流程要点：</p>
+<p>- <strong>异步边界</strong>：提交后立即返回任务 ID，渲染不阻塞 HTTP 请求；前端通过轮询或定时刷新获取状态。</p>
+<p>- <strong>一致性边界</strong>：额度扣减与任务创建在同一个数据库事务内完成；视频文件与数据库记录需要保持一致。</p>
+<p>- <strong>失败边界</strong>：渲染失败记录错误信息，任务进入 failed 并返还额度；用户可重新生成。</p>
+<h3>2.2 视频任务状态机</h3>
+<p><code>video_jobs.status</code> 是业务核心状态，采用单向流转防止状态回跳。状态集合沿用 PRD：<code>pending</code>、<code>processing</code>、<code>completed</code>、<code>failed</code>、<code>cancelled</code>。</p>
+<table><thead><tr><th>当前状态</th><th>触发事件</th><th>迁移条件</th><th>目标状态</th><th>伴随动作</th></tr></thead><tbody><tr><td>（无）</td><td>用户提交生成</td><td>文案通过 Schema 校验且额度 ≥1</td><td>pending</td><td>创建任务、事务内原子扣减 1 次额度</td></tr><tr><td>pending</td><td>Worker 领取任务</td><td>行锁锁定成功（同一任务仅一个 Worker）</td><td>processing</td><td>写入领取记录、开始渲染</td></tr><tr><td>processing</td><td>渲染成功</td><td>MP4 落盘且缩略图生成</td><td>completed</td><td>写 output_path、生成缩略图、completed_at</td></tr><tr><td>processing</td><td>渲染失败</td><td>渲染异常/超时</td><td>failed</td><td>写 error_message、返还额度</td></tr><tr><td>pending / processing</td><td>用户取消</td><td>用户主动取消且任务未 completed</td><td>cancelled</td><td>停止/丢弃任务、返还额度</td></tr><tr><td>failed / cancelled</td><td>用户重新生成</td><td>额度 ≥1</td><td>pending</td><td>以原参数创建新任务、重新占用额度</td></tr></tbody></table>
+<p>状态—允许操作矩阵：</p>
+<table><thead><tr><th>状态</th><th>预览结果</th><th>下载</th><th>重新生成</th><th>取消</th><th>删除</th></tr></thead><tbody><tr><td>pending</td><td>否</td><td>否</td><td>否</td><td>是</td><td>是</td></tr><tr><td>processing</td><td>否</td><td>否</td><td>是</td><td>是</td><td>是</td></tr><tr><td>completed</td><td>是</td><td>是</td><td>是</td><td>否</td><td>是</td></tr><tr><td>failed</td><td>否</td><td>否</td><td>是</td><td>否</td><td>是</td></tr><tr><td>cancelled</td><td>否</td><td>否</td><td>是</td><td>否</td><td>是</td></tr></tbody></table>
+<p>稳定性约束：Worker 异常退出后任务不得永久停留在 processing；通过任务超时扫描将超时任务转入 failed 并返还额度。</p>
+<h3>2.3 额度与用量逻辑</h3>
+<p>额度是连接产品体验与商业化的关键规则，必须保证原子性与可追溯。V1.0 先实现免费额度与简单次数限制，订阅支付后置。</p>
+<table><thead><tr><th>规则项</th><th>口径</th></tr></thead><tbody><tr><td>初始额度</td><td>新用户 3 次（免费体验）</td></tr><tr><td>扣减时机</td><td>成功创建 pending 任务时扣减，与任务创建同事务</td></tr><tr><td>原子性</td><td>采用条件更新（如 <code>remaining &gt; 0</code> 才扣减）或等效锁机制，防止并发重复请求超额生成</td></tr><tr><td>幂等</td><td>同一请求方幂等键重复提交，不重复建任务、不重复扣额度</td></tr><tr><td>返还时机</td><td>任务终态为 failed 或 cancelled 时返还 1 次</td></tr><tr><td>消耗口径</td><td>1 条视频 = 1 次额度；重新生成视为新任务重新占用</td></tr><tr><td>用量记录</td><td>每次生成写入 usage_records，含 user_id、video_job_id、usage_type、amount</td></tr><tr><td>不足处理</td><td>额度为 0 时阻止提交，提示升级；不创建任务、不扣减</td></tr></tbody></table>
+<p>说明：BR-009（失败任务返还额度）与 BR-006（同任务单 Worker）共同保证「不重复扣、不重复渲染」；订阅套餐额度（Starter 30 / Pro 100 / Agency 250）在支付能力上线后接入，去水印与额度提升同步生效。</p>
+<h3>2.4 业务规则归类</h3>
+<p>PRD 的 12 条业务规则按四类归并，便于研发与测试按域认领。</p>
+<table><thead><tr><th>类别</th><th>规则编号</th><th>规则内容</th><th>落点模块</th></tr></thead><tbody><tr><td>数据归属</td><td>BR-001</td><td>用户只能访问自己的商品和视频</td><td>用户/商品/视频模块</td></tr><tr><td>参数校验</td><td>BR-002</td><td>每个视频必须关联一个模板</td><td>视频创作模块</td></tr><tr><td>参数校验</td><td>BR-003</td><td>每个视频必须有合法的渲染参数</td><td>渲染模块</td></tr><tr><td>参数校验</td><td>BR-004</td><td>文案必须通过 JSON Schema 校验</td><td>AI 文案模块</td></tr><tr><td>异步渲染</td><td>BR-005</td><td>任务提交后异步执行</td><td>任务模块</td></tr><tr><td>异步渲染</td><td>BR-006</td><td>同一任务只能被一个 Worker 领取</td><td>Worker</td></tr><tr><td>异步渲染</td><td>BR-007</td><td>渲染完成后才标记为 completed</td><td>Worker / 任务模块</td></tr><tr><td>异步渲染</td><td>BR-008</td><td>失败任务可以重试</td><td>任务模块</td></tr><tr><td>额度与一致性</td><td>BR-009</td><td>失败任务返还已占用额度</td><td>用量模块</td></tr><tr><td>额度与一致性</td><td>BR-010</td><td>视频文件和数据库记录保持一致</td><td>文件模块 / 任务模块</td></tr><tr><td>额度与一致性</td><td>BR-011</td><td>删除视频时清理对应本地文件</td><td>文件模块</td></tr><tr><td>安全红线</td><td>BR-012</td><td>不允许用户执行或上传任意 Remotion 代码</td><td>渲染模块</td></tr></tbody></table>
+<h3>2.5 数据实体关系与关键字段口径</h3>
+<table><thead><tr><th>实体关系</th><th>基数</th><th>说明</th></tr></thead><tbody><tr><td>User — Product</td><td>1 : N</td><td>一个用户拥有多个商品</td></tr><tr><td>User — VideoJob</td><td>1 : N</td><td>一个用户拥有多个视频任务</td></tr><tr><td>VideoJob — Product</td><td>N : 1</td><td>每个视频任务关联一个商品</td></tr><tr><td>VideoJob — VideoTemplate</td><td>N : 1</td><td>每个视频任务关联一个模板</td></tr><tr><td>User — Subscription</td><td>1 : 1</td><td>一个用户一条订阅（支付上线后）</td></tr><tr><td>VideoJob — UsageRecord</td><td>1 : N</td><td>每次生成/返还记录用量</td></tr></tbody></table>
+<p>关键字段口径：</p>
+<table><thead><tr><th>字段</th><th>类型/取值</th><th>口径</th></tr></thead><tbody><tr><td>video_jobs.status</td><td>pending / processing / completed / failed / cancelled</td><td>任务生命周期状态，单向流转</td></tr><tr><td>video_jobs.input_json</td><td>JSON</td><td>经 Zod/Schema 校验的渲染参数（标题、副标题、图片、价格、卖点、CTA、品牌色）</td></tr><tr><td>video_jobs.output_path</td><td>TEXT</td><td>渲染成功后的 MP4 相对路径</td></tr><tr><td>video_jobs.error_message</td><td>TEXT</td><td>渲染失败原因，仅 failed 时有值</td></tr><tr><td>usage_records.amount</td><td>DECIMAL</td><td>消耗量，扣减为 +1、返还为 -1（或按实现统一口径）</td></tr></tbody></table>
+<h3>2.6 权限模型</h3>
+<p>V1.0 不建复杂组织/角色体系，采用三类角色 + 数据归属校验。</p>
+<table><thead><tr><th>角色</th><th>可访问模块</th><th>数据范围</th><th>关键限制</th></tr></thead><tbody><tr><td>匿名</td><td>登录注册页</td><td>无</td><td>访问受保护页面跳转登录</td></tr><tr><td>普通用户</td><td>商品、模板、创作、视频、额度</td><td>仅本人数据</td><td>所有查询带 user_id 过滤；文件下载需鉴权</td></tr><tr><td>付费用户</td><td>同上</td><td>仅本人数据</td><td>增加去水印与更高额度</td></tr><tr><td>管理员</td><td>模板启停、任务监控、用量统计</td><td>全局配置与统计</td><td>默认不读取用户商品内容，按运营需要授权</td></tr></tbody></table>
+<h2 id="s3">3. 原型思路</h2>
+<p>本节给出信息架构、页面清单、页面流转与关键页面线框思路，供 UI 设计直接落笔；线框图只描述通用布局与交互，不复制任何既有产品的视觉或文案。</p>
+<h3>3.1 信息架构</h3>
+<p>采用顶部主导航 + 右上角用户菜单的两级结构，常用功能两次点击内可达。</p>
+<pre><code class="language-text">ProductVideo AI
+├── 顶部主导航
+│   ├── 工作台 Dashboard
+│   ├── 商品管理
+│   ├── 模板选择
+│   ├── 视频创作（核心任务入口）
+│   └── 视频管理
+└── 用户菜单（右上角头像）
+    ├── 我的额度
+    ├── 账号设置
+    └── 退出登录</code></pre>
+<p>信息组织原则：按用户任务频率分组，「视频创作」作为主行动按钮常驻显眼位置；后台管理为独立入口，不混入普通用户导航。</p>
+<h3>3.2 页面清单</h3>
+<table><thead><tr><th>页面</th><th>核心内容</th><th>主要操作</th><th>在任务流中的位置</th></tr></thead><tbody><tr><td>登录注册页</td><td>邮箱、密码、注册/登录切换</td><td>注册、登录</td><td>入口</td></tr><tr><td>Dashboard</td><td>剩余额度、最近视频、快捷入口</td><td>新建视频、查看视频</td><td>登录后落地页</td></tr><tr><td>商品管理页</td><td>商品列表（主图/名称/时间）</td><td>新增、编辑、删除商品</td><td>创作前置</td></tr><tr><td>模板选择页</td><td>模板卡片（预览图/名称/时长）</td><td>选择模板</td><td>创作第 2 步</td></tr><tr><td>视频创作页</td><td>步骤条、文案编辑、参数配置、预览</td><td>生成文案、编辑、预览、提交</td><td>核心闭环</td></tr><tr><td>视频管理页</td><td>视频列表（封面/状态/模板/时间）</td><td>预览、下载、重新生成、删除</td><td>生成后</td></tr></tbody></table>
+<h3>3.3 页面流转</h3>
+<p>以任务为单位梳理跳转条件与返回路径。</p>
+<pre><code class="language-text">创作视频任务：
+登录 → Dashboard →[新建视频]→ 商品管理/选择商品 → 模板选择 → 视频创作(向导) → 视频管理 → 下载
+
+管理任务：
+Dashboard →[最近视频]→ 视频管理 → 预览/下载/重新生成/删除
+
+配置任务：
+用户菜单 → 我的额度 →（额度不足时）升级提示；用户菜单 → 账号设置</code></pre>
+<p>返回路径：向导每一步可返回上一步；提交后不可回退到编辑，需通过「重新生成」另起任务；删除操作可取消。</p>
+<h3>3.4 关键页面线框思路</h3>
+<p><strong>页面：视频创作页（核心页）</strong></p>
+<p>- 页面目标：让用户在不离开页面的情况下完成文案编辑、参数配置、预览与提交。</p>
+<p>- 布局思路：顶部步骤条（选商品 → 选模板 → 文案 → 参数 → 预览 → 提交）；左侧为文案与参数表单，右侧为竖屏 9:16 预览区；底部为「上一步 / 生成文案 / 提交生成」操作栏。</p>
+<p>- 交互说明：文案字段旁提供「重新生成」；参数变更实时反映到预览；文案超限或必填缺失时提交按钮禁用并提示原因。</p>
+<p><strong>页面：商品管理页</strong></p>
+<p>- 页面目标：快速维护创作素材。</p>
+<p>- 布局思路：顶部「新增商品」按钮；列表卡片展示主图、名称、卖点数、创建时间；每行含编辑/删除。</p>
+<p>- 交互说明：删除需二次确认；上传区实时校验格式与大小并显示进度；空状态引导新增。</p>
+<p><strong>页面：模板选择页</strong></p>
+<p>- 页面目标：按营销目的选择模板。</p>
+<p>- 布局思路：模板卡片网格，含预览缩略图、名称、时长（15/20 秒）、适用场景；停用的模板不展示。</p>
+<p>- 交互说明：点击卡片进入创作并锁定模板；可返回更换。</p>
+<p><strong>页面：视频管理页</strong></p>
+<p>- 页面目标：跟踪生成结果并下载。</p>
+<p>- 布局思路：列表/卡片展示封面、名称、关联商品、模板、状态、时间；状态用标签区分；行操作含预览、下载、重新生成、删除。</p>
+<p>- 交互说明：未完成任务显示进度状态且预览/下载置灰；失败项显示错误原因并提供重新生成；状态定时刷新。</p>
+<p><strong>页面：Dashboard</strong></p>
+<p>- 页面目标：一眼看到额度与最近产出，并提供主行动入口。</p>
+<p>- 布局思路：顶部剩余额度卡片；「新建视频」主按钮；下方最近视频列表。</p>
+<p>- 交互说明：额度为 0 时主按钮旁显示升级提示；无视频时展示空状态引导。</p>
+<p><strong>页面：登录注册页</strong></p>
+<p>- 页面目标：最小化注册阻力。</p>
+<p>- 布局思路：居中表单，邮箱、密码、登录/注册切换；新用户免费额度说明。</p>
+<p>- 交互说明：校验错误就近提示；注册成功直接进入 Dashboard。</p>
+<h3>3.5 交互设计原则与四态</h3>
+<table><thead><tr><th>原则</th><th>落地要求</th></tr></thead><tbody><tr><td>状态完整</td><td>空、加载、错误、边界（超限/超长/无权限）四态均有设计</td></tr><tr><td>反馈及时</td><td>每次操作有结果反馈：成功、失败、进行中</td></tr><tr><td>操作可逆</td><td>删除需二次确认；向导可返回上一步</td></tr><tr><td>一致性</td><td>相同操作在各页面文案与位置一致</td></tr><tr><td>容错引导</td><td>输入错误指出位置并给修正建议，不只用红框</td></tr><tr><td>无障碍</td><td>关键操作支持键盘可达，文字与背景满足基本对比度</td></tr></tbody></table>
+<p>四态设计示例：</p>
+<table><thead><tr><th>状态</th><th>商品管理页</th><th>视频创作页</th><th>视频管理页</th></tr></thead><tbody><tr><td>空</td><td>无商品，引导新增</td><td>无商品/无模板，引导先创建</td><td>无视频，引导新建</td></tr><tr><td>加载</td><td>列表骨架屏</td><td>生成文案时按钮 Loading、预览占位</td><td>状态轮询中显示进度</td></tr><tr><td>错误</td><td>上传失败提示格式/大小原因</td><td>AI 失败提示重试、Schema 失败提示字段</td><td>失败任务显示错误原因 + 重试</td></tr><tr><td>边界</td><td>图片 &gt;10 MB 拦截</td><td>文案超限拦截提交</td><td>额度为 0 提示升级</td></tr></tbody></table>
+<h2 id="s4">4. 交互流程</h2>
+<p>本节把创作向导的每一步拆成「用户操作 / 系统反馈 / 校验 / 可回退」四列，并汇总主分支异常流程与关键交互说明。</p>
+<h3>4.1 视频创作向导交互流程</h3>
+<table><thead><tr><th>步骤</th><th>用户操作</th><th>系统反馈</th><th>校验点</th><th>可回退</th></tr></thead><tbody><tr><td>1 选择商品</td><td>从列表选择或现场新建商品</td><td>显示已选商品主图与摘要</td><td>必选；新建商品需通过图片校验</td><td>是</td></tr><tr><td>2 选择模板</td><td>点击模板卡片</td><td>锁定模板并展示时长/规格</td><td>仅已启用模板可选</td><td>是（返回第 1 步）</td></tr><tr><td>3 生成文案</td><td>点击「生成文案」</td><td>展示标题/副标题/卖点/CTA，可编辑、可重新生成</td><td>Schema 校验、长度限制、不编造功效/认证</td><td>是</td></tr><tr><td>4 配置参数</td><td>选品牌色、Logo、背景音乐</td><td>预览实时更新</td><td>可选项缺省用模板默认值</td><td>是</td></tr><tr><td>5 视频预览</td><td>查看 9:16 预览</td><td>Remotion Player 播放</td><td>必填参数完整方可进入下一步</td><td>是</td></tr><tr><td>6 提交生成</td><td>点击「提交生成」</td><td>创建任务、扣额度、跳转视频管理页</td><td>额度 ≥1、文案通过校验、幂等防重</td><td>否（提交后走重新生成）</td></tr><tr><td>7 查看结果</td><td>打开视频管理页、下载 MP4</td><td>状态更新、完成后可预览下载</td><td>鉴权校验文件归属</td><td>—</td></tr></tbody></table>
+<h3>4.2 主流程、分支流程与异常流程</h3>
+<table><thead><tr><th>类型</th><th>流程</th><th>关键节点</th></tr></thead><tbody><tr><td>主流程</td><td>登录 → Dashboard → 选商品 → 选模板 → AI 文案 → 编辑预览 → 提交 → 视频管理 → 下载</td><td>全链路无阻断</td></tr><tr><td>分支 A</td><td>创作中现场新建商品</td><td>新建成功后自动回填为当前商品</td></tr><tr><td>分支 B</td><td>AI 文案不满意</td><td>重新生成；已手工编辑字段默认保留</td></tr><tr><td>分支 C</td><td>品牌项未配置</td><td>使用模板默认值，不阻断提交</td></tr><tr><td>分支 D</td><td>额度不足</td><td>阻止提交，提示升级路径</td></tr><tr><td>异常 A</td><td>图片格式/大小错误</td><td>上传即校验并提示原因，不落盘</td></tr><tr><td>异常 B</td><td>AI 生成失败</td><td>提示「重新生成」，不扣额度</td></tr><tr><td>异常 C</td><td>渲染失败</td><td>任务转 failed、记录错误、返还额度、提供重试</td></tr><tr><td>异常 D</td><td>Worker 异常退出</td><td>超时扫描将 processing 转 failed 并返还额度</td></tr><tr><td>异常 E</td><td>越权访问</td><td>查询带 user_id 过滤，返回拒绝，不泄露文件</td></tr><tr><td>异常 F</td><td>磁盘不足</td><td>告警并暂停提交，避免写盘失败</td></tr></tbody></table>
+<h3>4.3 关键交互说明</h3>
+<table><thead><tr><th>交互点</th><th>说明</th></tr></thead><tbody><tr><td>任务进度反馈</td><td>前端定时轮询或刷新任务状态；状态文案与状态机严格一致（pending 等待 / processing 渲染中 / completed 完成 / failed 失败 / cancelled 已取消）</td></tr><tr><td>失败重试</td><td>失败任务展示错误原因；点击重新生成时先按规则返还原占用额度，再创建新任务占用 1 次</td></tr><tr><td>额度提示</td><td>创作页常驻显示剩余额度；不足时禁用提交并说明升级后去水印、提额度</td></tr><tr><td>二次确认</td><td>删除商品、删除视频均需二次确认；取消则无副作用</td></tr><tr><td>预览与提交分离</td><td>预览使用 Remotion Player（低分辨率可降成本），提交后才走完整渲染生成 MP4</td></tr><tr><td>文案合规</td><td>AI 输出不得编造商品功效、认证或未经证实的宣传声明；用户可编辑并承担最终确认</td></tr></tbody></table>
+<h2 id="s5">5. 需求追踪矩阵（RTM）</h2>
+<table><thead><tr><th>需求编号</th><th>需求描述</th><th>PRD 章节</th><th>原型页面</th><th>测试用例锚点</th><th>状态</th></tr></thead><tbody><tr><td>US-01</td><td>邮箱注册</td><td>5.1</td><td>登录注册页</td><td>TC-01</td><td>待开发</td></tr><tr><td>US-02</td><td>登录/退出</td><td>5.1</td><td>登录注册页/全局</td><td>TC-02</td><td>待开发</td></tr><tr><td>US-03</td><td>查看额度</td><td>5.8</td><td>Dashboard/创作页</td><td>TC-03</td><td>待开发</td></tr><tr><td>US-04</td><td>新增商品与图片上传</td><td>5.2</td><td>商品管理页</td><td>TC-04</td><td>待开发</td></tr><tr><td>US-05</td><td>编辑商品</td><td>5.2</td><td>商品管理页</td><td>TC-05</td><td>待开发</td></tr><tr><td>US-06</td><td>删除商品</td><td>5.2</td><td>商品管理页</td><td>TC-06</td><td>待开发</td></tr><tr><td>US-07</td><td>商品列表</td><td>5.2</td><td>商品管理页</td><td>TC-07</td><td>待开发</td></tr><tr><td>US-08</td><td>AI 文案生成</td><td>5.3</td><td>视频创作页</td><td>TC-08</td><td>待开发</td></tr><tr><td>US-09</td><td>编辑文案</td><td>5.3</td><td>视频创作页</td><td>TC-09</td><td>待开发</td></tr><tr><td>US-10</td><td>重新生成文案</td><td>5.3</td><td>视频创作页</td><td>TC-10</td><td>待开发</td></tr><tr><td>US-11</td><td>选择模板</td><td>5.4</td><td>模板选择页</td><td>TC-11</td><td>待开发</td></tr><tr><td>US-12</td><td>配置视频参数</td><td>5.5</td><td>视频创作页</td><td>TC-12</td><td>待开发</td></tr><tr><td>US-13</td><td>视频预览</td><td>5.5</td><td>视频创作页</td><td>TC-13</td><td>待开发</td></tr><tr><td>US-14</td><td>提交生成任务</td><td>5.5/5.8</td><td>视频创作页</td><td>TC-14</td><td>待开发</td></tr><tr><td>US-15</td><td>查看任务进度</td><td>5.6</td><td>视频管理页</td><td>TC-15</td><td>待开发</td></tr><tr><td>US-16</td><td>查看生成结果</td><td>5.7</td><td>视频管理页</td><td>TC-16</td><td>待开发</td></tr><tr><td>US-17</td><td>下载 MP4</td><td>5.7</td><td>视频管理页</td><td>TC-17</td><td>待开发</td></tr><tr><td>US-18</td><td>重新生成</td><td>5.7</td><td>视频管理页</td><td>TC-18</td><td>待开发</td></tr><tr><td>US-19</td><td>删除视频</td><td>5.7</td><td>视频管理页</td><td>TC-19</td><td>待开发</td></tr><tr><td>US-20</td><td>模板启停</td><td>5.4/6</td><td>后台（模板管理）</td><td>TC-20</td><td>待开发</td></tr><tr><td>US-21</td><td>任务监控</td><td>5.6</td><td>后台（任务监控）</td><td>TC-21</td><td>待开发</td></tr><tr><td>US-22</td><td>用量统计</td><td>5.8</td><td>后台（用量统计）</td><td>TC-22</td><td>待开发</td></tr></tbody></table>
+<h2 id="s6">6. 假设与待确认事项</h2>
+<table><thead><tr><th>编号</th><th>假设/待确认</th><th>影响</th><th>建议动作</th></tr></thead><tbody><tr><td>A-01</td><td>用户画像基于 PRD 角色构建，未经真实调研</td><td>影响故事优先级与文案语气</td><td>试用客户访谈后修正画像</td></tr><tr><td>A-02</td><td>重新生成时额度先返还再占用，与「1 条视频 1 次额度」口径一致</td><td>影响用量记录正负值</td><td>研发与产品确认实现口径</td></tr><tr><td>A-03</td><td>任务状态刷新采用前端轮询，未定轮询间隔</td><td>影响服务器负载与体验</td><td>压测后定间隔（如 5～10 秒）</td></tr><tr><td>A-04</td><td>后台管理页面形态未细化</td><td>影响管理员故事 US-20~22 排期</td><td>V1.1 前补充后台页面设计</td></tr><tr><td>A-05</td><td>订阅支付后置，额度提升与去水印上线时机未定</td><td>影响商业化节奏</td><td>试用客户验证付费意愿后接入</td></tr></tbody></table>
+<p>本方案为产品设计参考，具体实施请结合公司合规与法务要求确认。</p>
+</section>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="docx-page-size" content="A4">
+<title>ProductVideo AI 产品需求文档 PRD V1.0</title>
+<style>
+:root {
+  --typography-fontFamily-heading: "Microsoft YaHei", "微软雅黑", sans-serif;
+  --typography-fontFamily-body: "SimSun", "宋体", serif;
+  --typography-fontFamily-mono: "Consolas", monospace;
+  --typography-fontSize-h1: 22pt;
+  --typography-fontSize-h2: 16pt;
+  --typography-fontSize-h3: 13pt;
+  --typography-fontSize-body: 12pt;
+  --typography-fontSize-small: 10.5pt;
+  --typography-lineHeight-body: 1.6;
+  --typography-lineHeight-heading: 1.3;
+  --typography-fontWeight-bold: 700;
+  --typography-fontWeight-normal: 400;
+  --layout-margin: 2.5cm;
+  --layout-contentWidth: 15.6cm;
+  --fs-h1: var(--typography-fontSize-h1);
+  --fs-h2: var(--typography-fontSize-h2);
+  --fs-h3: var(--typography-fontSize-h3);
+  --fs-body: var(--typography-fontSize-body);
+  --fs-small: var(--typography-fontSize-small);
+  --fs-cover-title: 30pt;
+  --ff-heading: var(--typography-fontFamily-heading);
+  --ff-body: var(--typography-fontFamily-body);
+  --ff-mono: var(--typography-fontFamily-mono);
+  --lh-body: var(--typography-lineHeight-body);
+  --lh-heading: var(--typography-lineHeight-heading);
+  --fw-bold: var(--typography-fontWeight-bold);
+  --fw-normal: var(--typography-fontWeight-normal);
+  --color-primary: #1565C0;
+  --color-on-primary: #FFFFFF;
+  --color-text: #212121;
+  --color-muted: #616161;
+  --color-border: #D5DBE1;
+  --color-bg: #F5F7FA;
+  --color-callout-bg: #EEF4FB;
+  --color-code-bg: #F2F4F7;
+  --spacing-paragraph: 0.75em;
+  --spacing-section: 1.6em;
+  --spacing-block: 1em;
+  --margin-page: var(--layout-margin);
+  --page-content-width: var(--layout-contentWidth);
+}
+@page { margin: var(--margin-page); @bottom-center { content: counter(page); } }
+@page cover { @bottom-center { content: none; } }
+section[role="cover"] { page: cover; }
+body {
+  font-family: var(--ff-body);
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  line-height: var(--lh-body);
+  max-width: var(--page-content-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+p { font-family: var(--ff-body); font-size: var(--fs-body); color: var(--color-text); line-height: var(--lh-body); text-indent: 2em; text-align: justify; margin: 0 0 var(--spacing-paragraph) 0; }
+h1 { font-family: var(--ff-heading); font-size: var(--fs-h1); color: var(--color-primary); font-weight: var(--fw-bold); line-height: var(--lh-heading); margin: var(--spacing-section) 0 var(--spacing-block) 0; }
+h2 { font-family: var(--ff-heading); font-size: var(--fs-h2); color: var(--color-primary); font-weight: var(--fw-bold); line-height: var(--lh-heading); margin: var(--spacing-section) 0 var(--spacing-block) 0; }
+h3 { font-family: var(--ff-heading); font-size: var(--fs-h3); color: var(--color-text); font-weight: var(--fw-bold); line-height: var(--lh-heading); margin: var(--spacing-block) 0 0.5em 0; }
+strong { font-weight: var(--fw-bold); }
+ul, ol { font-family: var(--ff-body); font-size: var(--fs-body); line-height: var(--lh-body); margin: 0 0 var(--spacing-paragraph) 0; padding-left: 2em; }
+li { font-family: var(--ff-body); font-size: var(--fs-body); line-height: var(--lh-body); margin-bottom: 0.3em; }
+table { width: 100%; border-collapse: collapse; margin: var(--spacing-block) 0; font-family: var(--ff-body); font-size: var(--fs-small); }
+caption { font-family: var(--ff-heading); font-size: var(--fs-small); color: var(--color-muted); text-align: left; margin-bottom: 0.4em; }
+th { background: var(--color-primary); color: var(--color-on-primary); font-weight: var(--fw-bold); text-align: left; padding: 6px 8px; border: 1px solid var(--color-border); }
+td { padding: 6px 8px; border: 1px solid var(--color-border); vertical-align: top; }
+code { font-family: var(--ff-mono); font-size: var(--fs-small); background: var(--color-code-bg); }
+pre { font-family: var(--ff-mono); font-size: var(--fs-small); background: var(--color-code-bg); border: 1px solid var(--color-border); padding: 10px; margin: var(--spacing-block) 0; line-height: 1.4; white-space: pre-wrap; }
+pre code { font-family: var(--ff-mono); font-size: var(--fs-small); background: transparent; }
+.toc-title { font-family: var(--ff-heading); font-size: var(--fs-h1); color: var(--color-primary); font-weight: var(--fw-bold); text-align: center; text-indent: 0; margin-bottom: var(--spacing-section); }
+.toc-list, .toc-list ol, .toc-list ul { list-style: none; padding-left: 0; }
+.toc-list li { margin-bottom: 0.45em; }
+.toc-list a { color: var(--color-text); text-decoration: none; }
+.cover-title { font-family: var(--ff-heading); font-size: var(--fs-cover-title); color: var(--color-primary); font-weight: var(--fw-bold); text-align: center; text-indent: 0; line-height: 1.35; margin: 2.5cm 0 0.8cm 0; }
+.cover-subtitle { font-family: var(--ff-heading); font-size: var(--fs-h2); color: var(--color-muted); text-align: center; text-indent: 0; margin-bottom: 1.5cm; }
+.cover-meta { font-family: var(--ff-body); font-size: var(--fs-body); color: var(--color-muted); text-align: center; text-indent: 0; margin-bottom: 0.6em; }
+.callout { border-left: 4px solid var(--color-primary); background: var(--color-callout-bg); padding: 8px 12px; text-indent: 0; margin: var(--spacing-block) 0; }
+</style>
+</head>
+<body>
+<section role="cover">
+  <p class="cover-title">ProductVideo AI</p>
+  <p class="cover-subtitle">产品需求文档 · PRD V1.0</p>
+  <p class="cover-meta">电商商品视频自动生成平台 · MVP</p>
+  <p class="cover-meta">个人开发者 · 美妆护肤 · 高级品牌感</p>
+  <p class="cover-meta">30 天 MVP · 目标月收入 $500～2,000</p>
+</section>
+<section role="cover">
+<nav class="doc-toc" aria-label="文档目录">
+  <p class="toc-title">目录</p>
+  <ol class="toc-list">
+    <li><a href="#s1">1. 产品概述</a></li>
+    <li><a href="#s2">2. 产品目标与范围</a></li>
+    <li><a href="#s3">3. 用户角色与使用场景</a></li>
+    <li><a href="#s4">4. 产品功能架构</a></li>
+    <li><a href="#s5">5. 详细功能需求</a></li>
+    <li><a href="#s6">6. 页面设计需求</a></li>
+    <li><a href="#s7">7. 核心业务规则</a></li>
+    <li><a href="#s8">8. 非功能性需求</a></li>
+    <li><a href="#s9">9. 技术架构约束</a></li>
+    <li><a href="#s10">10. 数据库实体关系</a></li>
+    <li><a href="#s11">11. MVP 开发排期</a></li>
+    <li><a href="#s12">12. 产品后续迭代规划</a></li>
+    <li><a href="#s13">13. 产品核心指标</a></li>
+    <li><a href="#s14">14. 产品决策总结</a></li>
+  </ol>
+</nav>
+</section>
+<section role="body" data-page-restart="1">
+<p>基于前面确定的技术架构和创业方向，整理一版可以直接用于后续 UI 设计、数据库设计和 AI 辅助编码的 PRD。本版定位为 V1.0 MVP 产品需求文档，优先保证核心视频生成链路可用，不把复杂的 SaaS 功能放进第一期。</p>
+<table>
+<thead><tr><th>项目</th><th>内容</th></tr></thead>
+<tbody>
+<tr><td>产品类型</td><td>Web SaaS</td></tr>
+<tr><td>目标用户</td><td>中小电商卖家、电商品牌</td></tr>
+<tr><td>首期垂直品类</td><td>美妆护肤</td></tr>
+<tr><td>视频风格</td><td>高级品牌感</td></tr>
+<tr><td>核心能力</td><td>商品资料转营销短视频</td></tr>
+<tr><td>视频规格</td><td>9:16，1080 × 1920</td></tr>
+<tr><td>视频时长</td><td>15～20 秒</td></tr>
+<tr><td>商业目标</td><td>月收入 $500～2,000</td></tr>
+<tr><td>开发周期</td><td>30 天 MVP</td></tr>
+</tbody>
+</table>
+
+<h2 id="s1">1. 产品概述</h2>
+<p>本章说明产品的背景、定位与核心价值，明确 ProductVideo AI 要解决的市场问题。</p>
+<h3>1.1 产品背景</h3>
+<p>当前中小电商商家需要持续制作商品营销视频，用于 TikTok、Instagram Reels、YouTube Shorts 等渠道。但传统视频制作存在以下问题：</p>
+<ul>
+  <li>视频制作需要一定的剪辑和设计能力。</li>
+  <li>外包制作成本较高。</li>
+  <li>商品上新和促销时，需要反复制作视频。</li>
+  <li>不同商品的视频风格难以保持一致。</li>
+  <li>批量生产视频效率低。</li>
+</ul>
+<p>ProductVideo AI 通过商品信息参数化和 Remotion 模板渲染，将商品图片和商品信息转换成标准化的营销视频。</p>
+<h3>1.2 产品定位</h3>
+<p>面向中小电商卖家的商品营销视频自动生成工具。</p>
+<p>产品不是通用视频编辑器，也不是开放式 AI 文生视频平台，而是通过固定的高质量模板，帮助商家快速生产商品营销视频。</p>
+<h3>1.3 产品价值</h3>
+<table>
+<thead><tr><th>价值</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>降低制作门槛</td><td>不需要专业剪辑能力</td></tr>
+<tr><td>提高制作效率</td><td>几分钟生成商品视频</td></tr>
+<tr><td>降低制作成本</td><td>减少重复外包制作</td></tr>
+<tr><td>统一品牌风格</td><td>使用可复用的视频模板</td></tr>
+<tr><td>支持批量生产</td><td>多商品复用相同模板</td></tr>
+</tbody>
+</table>
+
+<h2 id="s2">2. 产品目标与范围</h2>
+<p>本章定义 MVP 阶段要验证的核心问题、成功指标以及本期的功能边界。</p>
+<h3>2.1 MVP 产品目标</h3>
+<p>第一阶段重点验证三个问题：</p>
+<ul>
+  <li>用户能否通过简单操作生成商品视频？</li>
+  <li>生成的视频是否达到商家实际发布的质量要求？</li>
+  <li>用户是否愿意为视频生成服务持续付费？</li>
+</ul>
+<h3>2.2 MVP 成功指标</h3>
+<table>
+<thead><tr><th>指标</th><th>目标</th></tr></thead>
+<tbody>
+<tr><td>视频模板</td><td>3～5 套</td></tr>
+<tr><td>真实试用客户</td><td>5～10 家</td></tr>
+<tr><td>生成视频数量</td><td>100 条</td></tr>
+<tr><td>付费试用客户</td><td>至少 3 家</td></tr>
+<tr><td>单条视频生成时间</td><td>目标 3 分钟以内</td></tr>
+<tr><td>视频生成成功率</td><td>目标 95% 以上</td></tr>
+<tr><td>月度收入</td><td>后续逐步达到 $500</td></tr>
+</tbody>
+</table>
+<p class="callout">&nbsp;&nbsp;以上属于产品验证目标，不代表上线后必然达到。</p>
+<h3>2.3 功能范围</h3>
+<p><strong>V1.0 纳入</strong>：</p>
+<ul>
+  <li>用户注册和登录。</li><li>商品信息管理。</li><li>商品图片上传。</li><li>AI 营销文案生成。</li><li>视频模板选择。</li><li>视频参数编辑。</li><li>视频预览。</li><li>视频异步生成。</li><li>视频任务管理。</li><li>视频下载。</li><li>基础使用额度统计。</li>
+</ul>
+<p><strong>V1.0 暂不纳入</strong>：</p>
+<ul>
+  <li>AI 文生视频、图生视频。</li><li>数字人和口播。</li><li>时间轴编辑器。</li><li>Shopify 深度集成。</li><li>TikTok 自动发布。</li><li>多人团队协作。</li><li>用户自定义上传 Remotion 代码。</li><li>复杂营销数据分析。</li>
+</ul>
+
+<h2 id="s3">3. 用户角色与使用场景</h2>
+<p>本章描述产品的目标用户角色，并给出四个典型的使用场景。</p>
+<h3>3.1 用户角色</h3>
+<table>
+<thead><tr><th>角色</th><th>描述</th><th>主要需求</th></tr></thead>
+<tbody>
+<tr><td>普通用户</td><td>电商商家</td><td>生成商品视频</td></tr>
+<tr><td>付费用户</td><td>订阅客户</td><td>获取更多视频额度</td></tr>
+<tr><td>管理员</td><td>产品运营者</td><td>管理模板和用户</td></tr>
+</tbody>
+</table>
+<p>V1.0 不需要复杂的组织、团队和角色权限体系。</p>
+<h3>3.2 典型使用场景</h3>
+<ul>
+  <li><strong>场景 A：新品发布</strong> —— 用户上传护肤品图片，填写名称和价格，选择新品展示模板，生成一条新品宣传视频。</li>
+  <li><strong>场景 B：商品卖点介绍</strong> —— 用户上传商品图片和商品描述，AI 提取三个卖点，生成商品介绍视频。</li>
+  <li><strong>场景 C：促销活动</strong> —— 用户填写商品价格、促销价格和优惠信息，生成促销视频。</li>
+  <li><strong>场景 D：品牌展示</strong> —— 用户配置品牌名称、Logo、品牌色和商品图片，生成统一品牌视觉的视频。</li>
+</ul>
+
+<h2 id="s4">4. 产品功能架构</h2>
+<p>ProductVideo AI 的功能结构如下：</p>
+<table>
+<thead><tr><th>模块</th><th>功能</th></tr></thead>
+<tbody>
+<tr><td>用户中心</td><td>注册登录、个人信息、套餐额度</td></tr>
+<tr><td>商品管理</td><td>商品列表、商品新增、图片上传</td></tr>
+<tr><td>视频创作</td><td>模板选择、文案生成、参数编辑、预览</td></tr>
+<tr><td>视频管理</td><td>任务列表、生成状态、视频下载</td></tr>
+<tr><td>模板管理</td><td>模板列表、模板分类、模板启停</td></tr>
+<tr><td>后台管理</td><td>用户管理、任务监控、用量统计</td></tr>
+</tbody>
+</table>
+
+<h2 id="s5">5. 详细功能需求</h2>
+<p>本章逐项定义各功能模块的详细需求、验收标准与优先级，是后续 UI 设计与编码的直接依据。</p>
+<h3>5.1 用户管理（P0）</h3>
+<table>
+<thead><tr><th>功能</th><th>需求说明</th></tr></thead>
+<tbody>
+<tr><td>用户注册</td><td>邮箱注册</td></tr>
+<tr><td>用户登录</td><td>邮箱和密码登录</td></tr>
+<tr><td>用户退出</td><td>清除登录会话</td></tr>
+<tr><td>用户信息</td><td>查看和修改基本信息</td></tr>
+<tr><td>用户额度</td><td>查看剩余视频生成次数</td></tr>
+</tbody>
+</table>
+<p><strong>验收标准</strong>：</p>
+<ul><li>用户可以正常注册、登录和退出。</li><li>未登录用户不能访问受保护页面。</li><li>用户只能查看自己的商品和视频任务。</li></ul>
+
+<h3>5.2 商品管理（P0）</h3>
+<p>商品管理是视频生成的基础。商品信息字段：</p>
+<table>
+<thead><tr><th>字段</th><th>必填</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>商品名称</td><td>是</td><td>商品标题</td></tr>
+<tr><td>商品图片</td><td>是</td><td>商品主图</td></tr>
+<tr><td>商品描述</td><td>否</td><td>商品介绍</td></tr>
+<tr><td>商品价格</td><td>否</td><td>商品价格</td></tr>
+<tr><td>商品卖点</td><td>否</td><td>最多 5 个</td></tr>
+<tr><td>品牌名称</td><td>否</td><td>商品品牌</td></tr>
+<tr><td>品牌 Logo</td><td>否</td><td>品牌图片</td></tr>
+<tr><td>品牌颜色</td><td>否</td><td>品牌主色</td></tr>
+</tbody>
+</table>
+<p><strong>功能要求</strong>：</p>
+<ul><li>新增商品。</li><li>编辑商品。</li><li>删除商品。</li><li>查看商品列表。</li><li>上传和替换商品图片。</li><li>商品信息可以重复用于多个视频。</li></ul>
+<p><strong>验收标准</strong>：</p>
+<ul><li>支持 JPG、PNG、WebP 格式。</li><li>图片大小限制建议为 10 MB。</li><li>图片上传后保存到服务器本地磁盘。</li><li>图片与用户 ID 关联。</li><li>删除商品时，不能误删该商品关联的其他用户文件。</li></ul>
+
+<h3>5.3 AI 商品文案生成（P0）</h3>
+<p>AI 根据商品资料生成视频营销文案。</p>
+<p><strong>输入</strong>：</p>
+<pre><code>{
+  "productName": "Hydrating Face Cream",
+  "description": "Daily moisturizing skincare cream",
+  "sellingPoints": [
+    "Lightweight texture",
+    "Daily skincare"
+  ],
+  "price": "$29.99"
+}</code></pre>
+<p><strong>输出</strong>：</p>
+<pre><code>{
+  "videoTitle": "Your Daily Hydration Essential",
+  "subtitle": "Lightweight Care for Everyday Skin",
+  "sellingPoints": [
+    "Lightweight Texture",
+    "Daily Moisture",
+    "Easy Everyday Care"
+  ],
+  "cta": "Discover More"
+}</code></pre>
+<p><strong>功能要求</strong>：</p>
+<ul><li>自动生成视频标题。</li><li>自动生成副标题。</li><li>自动生成商品卖点。</li><li>自动生成 CTA。</li><li>用户可以编辑 AI 生成的内容。</li><li>支持重新生成。</li><li>文案长度必须满足模板限制。</li><li>不允许 AI 擅自编造商品功效、认证或未经证实的宣传声明。</li></ul>
+<p><strong>验收标准</strong>：</p>
+<ul><li>AI 返回符合预定义 JSON Schema 的数据。</li><li>AI 生成失败时可以重新请求。</li><li>文案经过用户确认后才进入视频渲染。</li></ul>
+
+<h3>5.4 视频模板管理（P0）</h3>
+<p>V1.0 首期提供 4 种模板：</p>
+<table>
+<thead><tr><th>模板</th><th>名称</th><th>主要内容</th><th>建议时长</th></tr></thead>
+<tbody>
+<tr><td>模板 A</td><td>Product Launch 新品展示</td><td>商品主视觉、动态标题、品牌 Logo、商品名称</td><td>15 秒</td></tr>
+<tr><td>模板 B</td><td>Product Highlight 卖点介绍</td><td>商品图片、卖点动画、动态字幕</td><td>20 秒</td></tr>
+<tr><td>模板 C</td><td>Product Sale 促销活动</td><td>原价、折扣价、优惠文案、购买 CTA</td><td>15 秒</td></tr>
+<tr><td>模板 D</td><td>Premium Showcase 高级品牌展示</td><td>品牌视觉、商品特写、优雅转场、品牌宣传文案</td><td>20 秒</td></tr>
+</tbody>
+</table>
+<p><strong>模板统一规格</strong>：</p>
+<table>
+<thead><tr><th>属性</th><th>规格</th></tr></thead>
+<tbody>
+<tr><td>画面比例</td><td>9:16</td></tr>
+<tr><td>输出分辨率</td><td>1080 × 1920</td></tr>
+<tr><td>帧率</td><td>30 FPS</td></tr>
+<tr><td>输出格式</td><td>MP4</td></tr>
+<tr><td>视频编码</td><td>H.264</td></tr>
+<tr><td>音频</td><td>可选背景音乐</td></tr>
+<tr><td>模板参数</td><td>JSON</td></tr>
+</tbody>
+</table>
+
+<h3>5.5 视频创作流程（P0）</h3>
+<p>这是整个产品最核心的用户操作流程，采用视频创作向导：</p>
+<ol>
+<li><strong>选择商品</strong>：从商品列表选择商品，或直接创建新商品。</li>
+<li><strong>选择视频模板</strong>：从新品展示、卖点介绍、促销活动、高级品牌展示中选择。</li>
+<li><strong>生成营销文案</strong>：AI 自动生成标题、字幕和 CTA，用户可以修改。</li>
+<li><strong>配置视频参数</strong>：选择品牌颜色、Logo、背景音乐等可配置项。</li>
+<li><strong>视频预览</strong>：使用 Remotion Player 预览效果。</li>
+<li><strong>提交视频生成</strong>：创建异步渲染任务。</li>
+<li><strong>查看生成结果</strong>：生成完成后展示 MP4 视频和下载入口。</li>
+</ol>
+
+<h3>5.6 视频渲染（P0）</h3>
+<p><strong>功能要求</strong>：</p>
+<ul><li>根据模板 ID 加载对应 Composition。</li><li>根据商品和文案参数生成视频。</li><li>使用 Remotion 执行渲染。</li><li>视频渲染过程中不能阻塞 HTTP 请求。</li><li>支持任务失败状态和重新生成。</li><li>渲染成功后生成视频缩略图。</li><li>视频保存到本地文件系统。</li></ul>
+<p><strong>渲染任务状态</strong>：</p>
+<table>
+<thead><tr><th>状态</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>pending</td><td>等待执行</td></tr>
+<tr><td>processing</td><td>正在渲染</td></tr>
+<tr><td>completed</td><td>渲染完成</td></tr>
+<tr><td>failed</td><td>渲染失败</td></tr>
+<tr><td>cancelled</td><td>用户取消</td></tr>
+</tbody>
+</table>
+<p><strong>验收标准</strong>：</p>
+<ul><li>同一任务不能被多个 Worker 重复领取。</li><li>渲染失败时记录错误信息。</li><li>失败任务可以重新执行。</li><li>用户可以看到实时或定时更新的任务状态。</li><li>渲染完成后视频可以正常播放和下载。</li></ul>
+
+<h3>5.7 视频管理（P0）</h3>
+<table>
+<thead><tr><th>功能</th><th>需求说明</th></tr></thead>
+<tbody>
+<tr><td>视频列表</td><td>展示用户生成的视频</td></tr>
+<tr><td>视频预览</td><td>在线播放 MP4</td></tr>
+<tr><td>视频下载</td><td>下载原始 MP4</td></tr>
+<tr><td>视频详情</td><td>查看模板、商品和生成时间</td></tr>
+<tr><td>视频删除</td><td>删除视频及相关文件</td></tr>
+<tr><td>重新生成</td><td>使用原始参数重新生成</td></tr>
+</tbody>
+</table>
+<p>视频列表展示：视频封面、视频名称、关联商品、使用模板、生成时间、视频状态、下载和删除操作。</p>
+
+<h3>5.8 用量管理（P1）</h3>
+<p>MVP 初期可以只提供免费体验额度和简单的生成次数限制。</p>
+<table>
+<thead><tr><th>功能</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>免费额度</td><td>新用户获得 3 次体验机会</td></tr>
+<tr><td>生成扣减</td><td>成功提交生成任务后占用额度</td></tr>
+<tr><td>失败返还</td><td>任务最终失败时返还额度</td></tr>
+<tr><td>额度查询</td><td>显示剩余次数</td></tr>
+<tr><td>用量记录</td><td>记录每次视频生成</td></tr>
+</tbody>
+</table>
+<p class="callout">&nbsp;&nbsp;注意：额度扣减必须具备原子性，避免重复请求造成超额生成。</p>
+
+<h3>5.9 订阅与支付（V1.0 可后置）</h3>
+<p>建议等试用客户验证付费意愿后，再接入 Stripe。初步定价：</p>
+<table>
+<thead><tr><th>套餐</th><th>月价格</th><th>视频额度</th></tr></thead>
+<tbody>
+<tr><td>Starter</td><td>$19</td><td>30 条</td></tr>
+<tr><td>Pro</td><td>$49</td><td>100 条</td></tr>
+<tr><td>Agency</td><td>$99</td><td>250 条</td></tr>
+</tbody>
+</table>
+<p>付费后去水印、提高生成额度。</p>
+
+<h2 id="s6">6. 页面设计需求</h2>
+<p>V1.0 建议控制在 6 个主要页面：</p>
+<table>
+<thead><tr><th>页面</th><th>主要功能</th></tr></thead>
+<tbody>
+<tr><td>登录注册页</td><td>用户认证</td></tr>
+<tr><td>Dashboard</td><td>使用情况、最近生成的视频</td></tr>
+<tr><td>商品管理页</td><td>商品新增、编辑、删除</td></tr>
+<tr><td>模板选择页</td><td>浏览和选择视频模板</td></tr>
+<tr><td>视频创作页</td><td>文案编辑、参数配置、预览和生成</td></tr>
+<tr><td>视频管理页</td><td>视频列表、预览、下载、删除</td></tr>
+</tbody>
+</table>
+<p><strong>建议用户主流程</strong>：</p>
+<pre><code>登录
+  |
+  v
+Dashboard
+  |
+  v
+选择商品
+  |
+  v
+选择模板
+  |
+  v
+AI 文案生成
+  |
+  v
+编辑和预览
+  |
+  v
+提交生成任务
+  |
+  v
+视频管理
+  |
+  v
+下载 MP4</code></pre>
+
+<h2 id="s7">7. 核心业务规则</h2>
+<table>
+<thead><tr><th>编号</th><th>业务规则</th></tr></thead>
+<tbody>
+<tr><td>BR-001</td><td>用户只能访问自己的商品和视频</td></tr>
+<tr><td>BR-002</td><td>每个视频必须关联一个模板</td></tr>
+<tr><td>BR-003</td><td>每个视频必须有合法的渲染参数</td></tr>
+<tr><td>BR-004</td><td>文案必须通过 JSON Schema 校验</td></tr>
+<tr><td>BR-005</td><td>任务提交后异步执行</td></tr>
+<tr><td>BR-006</td><td>同一任务只能被一个 Worker 领取</td></tr>
+<tr><td>BR-007</td><td>渲染完成后才标记为 completed</td></tr>
+<tr><td>BR-008</td><td>失败任务可以重试</td></tr>
+<tr><td>BR-009</td><td>失败任务返还已占用的生成额度</td></tr>
+<tr><td>BR-010</td><td>视频文件和数据库记录需要保持一致</td></tr>
+<tr><td>BR-011</td><td>删除视频时清理对应本地文件</td></tr>
+<tr><td>BR-012</td><td>不允许用户执行或上传任意 Remotion 代码</td></tr>
+</tbody>
+</table>
+
+<h2 id="s8">8. 非功能性需求</h2>
+<p>本章从性能、安全与稳定性三个维度规定产品的非功能性要求。</p>
+<h3>8.1 性能</h3>
+<table>
+<thead><tr><th>项目</th><th>目标</th></tr></thead>
+<tbody>
+<tr><td>页面首次加载</td><td>目标 3 秒以内</td></tr>
+<tr><td>API 响应</td><td>常规接口目标 500ms 以内</td></tr>
+<tr><td>视频渲染</td><td>15～20 秒视频目标 3 分钟以内</td></tr>
+<tr><td>并发渲染</td><td>MVP 单任务</td></tr>
+<tr><td>图片上传</td><td>单文件最大 10 MB</td></tr>
+</tbody>
+</table>
+<p>渲染耗时取决于服务器配置、模板复杂度和素材，需通过实际压测确认。</p>
+<h3>8.2 安全</h3>
+<ul><li>所有业务 API 必须验证用户身份。</li><li>所有商品和视频查询必须校验用户归属。</li><li>文件上传必须校验文件格式和大小。</li><li>防止路径穿越和任意文件读取。</li><li>不允许用户直接访问其他用户的文件。</li><li>API 设置合理的频率限制。</li><li>AI API Key 只能保存在服务端。</li><li>视频下载使用鉴权接口。</li></ul>
+<h3>8.3 稳定性</h3>
+<ul><li>Worker 异常退出后，任务不能永久停留在 processing。</li><li>设置任务超时和失败恢复机制。</li><li>定期清理临时文件。</li><li>对磁盘使用量进行监控。</li><li>数据库定期备份。</li><li>对商品原始图片和重要视频建立备份策略。</li></ul>
+
+<h2 id="s9">9. 技术架构约束</h2>
+<p>本 PRD 与已确定的简化架构保持一致。</p>
+<table>
+<thead><tr><th>层次</th><th>技术方案</th></tr></thead>
+<tbody>
+<tr><td>Web 前端</td><td>Next.js + React</td></tr>
+<tr><td>UI</td><td>Tailwind CSS + shadcn/ui</td></tr>
+<tr><td>后端</td><td>Next.js API</td></tr>
+<tr><td>数据库</td><td>Supabase PostgreSQL</td></tr>
+<tr><td>身份认证</td><td>Supabase Auth</td></tr>
+<tr><td>视频模板</td><td>Remotion</td></tr>
+<tr><td>视频编码</td><td>FFmpeg</td></tr>
+<tr><td>异步任务</td><td>PostgreSQL + Node.js Worker</td></tr>
+<tr><td>文件存储</td><td>VPS 本地磁盘</td></tr>
+<tr><td>AI</td><td>OpenAI / Claude</td></tr>
+<tr><td>Web 服务</td><td>Nginx</td></tr>
+<tr><td>部署</td><td>Ubuntu VPS</td></tr>
+</tbody>
+</table>
+<p>明确不使用 Redis、BullMQ、S3、R2、AWS Lambda、Kubernetes 和微服务。</p>
+<p class="callout">&nbsp;&nbsp;<strong>重要技术约束</strong>：Next.js Web 进程与 Remotion Worker 虽然共享代码仓库，但必须作为独立进程运行。Worker 使用 PostgreSQL 领取任务，并通过事务锁避免重复执行。</p>
+
+<h2 id="s10">10. 数据库实体关系</h2>
+<p>核心数据模型：</p>
+<table>
+<thead><tr><th>实体</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>User</td><td>用户身份与账号信息</td></tr>
+<tr><td>Product</td><td>商品信息和图片路径</td></tr>
+<tr><td>Subscription</td><td>用户订阅和套餐</td></tr>
+<tr><td>VideoTemplate</td><td>模板定义和配置</td></tr>
+<tr><td>UsageRecord</td><td>视频生成额度记录</td></tr>
+<tr><td>VideoJob</td><td>关联 User、Product、VideoTemplate，保存渲染状态、参数和输出文件路径</td></tr>
+</tbody>
+</table>
+<p>每个用户可以拥有多个商品和视频任务；每个视频任务关联一个商品和一个模板。</p>
+
+<h2 id="s11">11. MVP 开发排期</h2>
+<table>
+<thead><tr><th>阶段</th><th>时间</th><th>主要任务</th><th>交付物</th></tr></thead>
+<tbody>
+<tr><td>阶段一</td><td>Day 1～5</td><td>项目初始化、Remotion 模板</td><td>视频引擎</td></tr>
+<tr><td>阶段二</td><td>Day 6～10</td><td>商品 JSON、文案和参数</td><td>参数化生成</td></tr>
+<tr><td>阶段三</td><td>Day 11～15</td><td>视频预览、渲染和文件存储</td><td>视频生成闭环</td></tr>
+<tr><td>阶段四</td><td>Day 16～20</td><td>用户、商品、任务管理</td><td>SaaS 基础功能</td></tr>
+<tr><td>阶段五</td><td>Day 21～25</td><td>AI 文案、额度管理</td><td>产品化功能</td></tr>
+<tr><td>阶段六</td><td>Day 26～30</td><td>部署、测试、客户试用</td><td>MVP 上线</td></tr>
+</tbody>
+</table>
+<h3>11.1 版本验收标准</h3>
+<p>V1.0 上线前必须完成：</p>
+<ul><li>用户可以注册和登录。</li><li>用户可以创建商品并上传图片。</li><li>用户可以选择视频模板。</li><li>用户可以生成 AI 营销文案。</li><li>用户可以编辑视频标题和卖点。</li><li>用户可以预览视频。</li><li>用户可以提交视频生成任务。</li><li>Worker 能够正常执行渲染。</li><li>视频可以保存在本地磁盘。</li><li>用户可以查看视频生成状态。</li><li>用户可以下载 MP4。</li><li>用户无法访问其他用户的商品和视频。</li><li>失败任务可以恢复或重新生成。</li></ul>
+
+<h2 id="s12">12. 产品后续迭代规划</h2>
+<table>
+<thead><tr><th>版本</th><th>规划内容</th><th>商业价值</th></tr></thead>
+<tbody>
+<tr><td>V1.0</td><td>商品视频生成 MVP</td><td>验证需求</td></tr>
+<tr><td>V1.1</td><td>批量商品视频生成</td><td>提高用户效率</td></tr>
+<tr><td>V1.2</td><td>品牌模板和品牌配置</td><td>增加付费价值</td></tr>
+<tr><td>V1.3</td><td>多语言视频</td><td>扩大海外市场</td></tr>
+<tr><td>V1.4</td><td>Shopify 商品导入</td><td>降低用户操作成本</td></tr>
+<tr><td>V2.0</td><td>API 视频生成</td><td>面向代运营和 SaaS 客户</td></tr>
+</tbody>
+</table>
+
+<h2 id="s13">13. 产品核心指标</h2>
+<p>上线后重点关注：</p>
+<table>
+<thead><tr><th>指标</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>注册转化率</td><td>访问者中注册用户比例</td></tr>
+<tr><td>首次生成率</td><td>注册用户中成功生成视频的比例</td></tr>
+<tr><td>视频成功率</td><td>成功渲染任务 / 总任务</td></tr>
+<tr><td>视频下载率</td><td>下载视频用户 / 生成视频用户</td></tr>
+<tr><td>付费转化率</td><td>付费用户 / 注册用户</td></tr>
+<tr><td>用户留存率</td><td>持续使用产品的用户比例</td></tr>
+<tr><td>单条视频成本</td><td>AI、CPU、磁盘等成本</td></tr>
+</tbody>
+</table>
+<p class="callout">&nbsp;&nbsp;其中最重要的三个指标是：首次生成率、视频下载率和付费转化率。</p>
+
+<h2 id="s14">14. 产品决策总结</h2>
+<p><strong>V1.0 产品范围最终确认</strong>：</p>
+<table>
+<thead><tr><th>项目</th><th>内容</th></tr></thead>
+<tbody>
+<tr><td>产品定位</td><td>美妆护肤商品视频生成器</td></tr>
+<tr><td>核心能力</td><td>商品资料转短视频</td></tr>
+<tr><td>视频风格</td><td>高级品牌感</td></tr>
+<tr><td>视频引擎</td><td>Remotion</td></tr>
+<tr><td>数据库</td><td>Supabase PostgreSQL</td></tr>
+<tr><td>文件存储</td><td>本地磁盘</td></tr>
+<tr><td>后台任务</td><td>PostgreSQL + Node.js Worker</td></tr>
+<tr><td>开发目标</td><td>30 天 MVP</td></tr>
+</tbody>
+</table>
+<p><strong>建议</strong>：这版 PRD 已经足以作为下一步工程设计的输入。不要马上开发所有页面，建议先实现一个端到端的最小闭环：</p>
+<p>上传商品图片 → 选择模板 → 生成文案 → Remotion 渲染 → 本地保存 MP4 → 下载视频</p>
+<p>这个闭环跑通后，再开发用户管理、额度和支付功能。</p>
+<p>下一步可以将这份 PRD 继续细化成一份技术设计文档（TDD），明确数据库 SQL、API 接口定义、模块职责、Worker 任务协议和 Remotion 渲染接口。</p>
+</section>
+</body>
+</html>
