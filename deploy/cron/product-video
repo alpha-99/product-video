@@ -1,0 +1,9 @@
+# /etc/cron.d/product-video — setup-vps.sh 会替换 __APP_DIR__ / __USER__ 后安装。
+# 方案 11 / 12.4：每日备份、每分钟告警巡检、每日容量清理、每周一致性核对。
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+0 3 * * * __USER__ cd __APP_DIR__ && bash deploy/backup.sh daily >> __APP_DIR__/logs/backup.log 2>&1
+* * * * * __USER__ cd __APP_DIR__ && node_modules/.bin/tsx scripts/ops-alert.ts >> __APP_DIR__/logs/alert.log 2>&1
+30 4 * * * __USER__ cd __APP_DIR__ && bash deploy/cleanup.sh >> __APP_DIR__/logs/cleanup.log 2>&1
+0 5 * * 0 __USER__ cd __APP_DIR__ && node_modules/.bin/tsx scripts/ops-storage-audit.ts >> __APP_DIR__/logs/storage-audit.log 2>&1

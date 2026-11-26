@@ -1,0 +1,12 @@
+# /etc/logrotate.d/product-video — PM2 与 cron 脚本日志按天轮转，保留 14 天。
+# copytruncate：PM2 长期持有文件句柄，不能靠 rename 切换 inode。
+__APP_DIR__/logs/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    su __USER__ __USER__
+}
