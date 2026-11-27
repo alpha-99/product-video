@@ -48,8 +48,8 @@ export function buildAlertMessage(
 ): string {
   const lines = [
     recovered
-      ? `✅ [ProductVideo AI] 服务已恢复 (${host})`
-      : `[ProductVideo AI] 巡检异常：${source.status.toUpperCase()} (${host})`,
+      ? `✅ [帧片 FrameReel] 服务已恢复 (${host})`
+      : `[帧片 FrameReel] 巡检异常：${source.status.toUpperCase()} (${host})`,
     `时间：${source.timestamp}`,
     `状态：${source.status}`,
     `版本：${source.version ?? "dev"}`,

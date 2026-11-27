@@ -140,9 +140,9 @@ async function main(): Promise<void> {
   });
 
   let templateId = "";
-  await check("GET /api/templates 返回 4 套模板", async () => {
+  await check("GET /api/templates 返回 5 套模板", async () => {
     const list = await json<Array<{ id: string }>>(await request("/api/templates"));
-    expect(list.length === 4, `模板数量 ${list.length}`);
+    expect(list.length === 5, `模板数量 ${list.length}`);
     templateId = list[0].id;
   });
 

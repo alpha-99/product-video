@@ -95,15 +95,15 @@ describe("商品 JSON Schema（PRD 5.2）", () => {
 });
 
 describe("模板注册表（PRD 5.4 / 方案 7.1）", () => {
-  it("4 个模板的 compositionId、时长与统一规格正确", () => {
+  it("5 个模板的 compositionId、时长与统一规格正确", () => {
     assert.deepEqual(TEMPLATES.map((t) => t.id), [...TEMPLATE_IDS]);
     assert.deepEqual(
       TEMPLATES.map((t) => t.compositionId),
-      ["product-launch", "product-highlight", "product-sale", "product-showcase"]
+      ["product-launch", "product-highlight", "product-sale", "product-showcase", "product-story"]
     );
     assert.deepEqual(
       TEMPLATES.map((t) => t.durationSec),
-      [15, 20, 15, 20]
+      [15, 20, 15, 20, 20]
     );
     for (const t of TEMPLATES) {
       assert.equal(t.width, 1080);

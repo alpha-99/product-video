@@ -52,7 +52,7 @@ CREATE TRIGGER trg_products_updated_at
 CREATE TABLE IF NOT EXISTS video_templates (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          VARCHAR(120) NOT NULL,
-  category      VARCHAR(60) NOT NULL,             -- launch/highlight/sale/showcase
+  category      VARCHAR(60) NOT NULL,             -- launch/highlight/sale/showcase/story
   composition_id VARCHAR(80) NOT NULL,            -- Remotion Composition ID
   duration_sec  SMALLINT NOT NULL DEFAULT 15,
   thumbnail_path TEXT,

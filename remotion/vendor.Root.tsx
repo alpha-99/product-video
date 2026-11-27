@@ -4,7 +4,7 @@
  * 来源：https://www.remotion.dev/templates/hello-world
  * 仓库：remotion-dev/remotion / packages/template-helloworld（源码已存 vendor/remotion-hello-world/）
  * 用途：验证本机 Remotion + Chrome Headless + FFmpeg 渲染链路是否可用，
- *       与生产 4 套模板解耦 —— TEMPLATES 注册表不含此 id，Worker 不会领取它。
+ *       与生产 5 套模板解耦 —— TEMPLATES 注册表不含此 id，Worker 不会领取它。
  * 注意：Remotion 为 source-available 许可，商用前需按 RK-01 核对授权。
  */
 import React from "react";
@@ -19,6 +19,6 @@ export const VendorRoot: React.FC = () => (
     fps={30}
     width={1080}
     height={1920}
-    defaultProps={{ titleText: "ProductVideo AI", titleColor: "#123b2e" }}
+    defaultProps={{ titleText: "FrameReel", titleColor: "#123b2e" }}
   />
 );

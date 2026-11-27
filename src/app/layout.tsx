@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "帧片 · 汇帧成片",
-  description: "AI 驱动的产品视频生成平台",
+  description: "AI 驱动的帧片生成平台",
 };
 
 /** 主题在首帧前落地，避免暗色主题闪白。 */

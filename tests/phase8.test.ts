@@ -79,7 +79,7 @@ describe("开发会话与前端依赖接口（阶段八）", { skip: !hasDb }, (
     cookieHeader = (response.headers.get("set-cookie") ?? "").split(";")[0];
   });
 
-  it("GET /api/templates 返回 4 套种子模板，compositionId 全部命中注册表", async () => {
+  it("GET /api/templates 返回 5 套种子模板，compositionId 全部命中注册表", async () => {
     const response = await templatesRoute.GET(
       new NextRequest("http://localhost/api/templates", { headers: { cookie: cookieHeader } })
     );
@@ -87,7 +87,7 @@ describe("开发会话与前端依赖接口（阶段八）", { skip: !hasDb }, (
     const body = (await response.json()) as {
       data: Array<{ id: string; compositionId: string; durationSec: number; tone: string; label: string }>;
     };
-    assert.equal(body.data.length, 4);
+    assert.equal(body.data.length, 5);
     const registered = TEMPLATES.map((t) => t.id as string);
     for (const template of body.data) {
       assert.ok(registered.includes(template.compositionId), `${template.compositionId} 未注册`);

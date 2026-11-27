@@ -76,6 +76,7 @@ UPDATE video_templates
            WHEN 'product-highlight' THEN 'Product Highlight'
            WHEN 'product-sale' THEN 'Summer Sale 30%'
            WHEN 'product-showcase' THEN 'Premium Showcase'
+           WHEN 'product-story' THEN 'Brand Story'
            ELSE NULL
          END
        ),
@@ -86,6 +87,7 @@ UPDATE video_templates
            WHEN 'product-highlight' THEN '卖点动画 + 字幕'
            WHEN 'product-sale' THEN '原价 / 折扣 / CTA'
            WHEN 'product-showcase' THEN '品牌视觉 + 优雅转场'
+           WHEN 'product-story' THEN '品牌叙事 + 氛围转场'
            ELSE NULL
          END
        ),
@@ -96,6 +98,7 @@ UPDATE video_templates
            WHEN 'product-highlight' THEN 'Learn More'
            WHEN 'product-sale' THEN 'Shop Now'
            WHEN 'product-showcase' THEN 'The Collection'
+           WHEN 'product-story' THEN 'Explore More'
            ELSE NULL
          END
        ),
@@ -106,6 +109,7 @@ UPDATE video_templates
            WHEN 'product-highlight' THEN 'premium'
            WHEN 'product-sale' THEN 'urgent'
            WHEN 'product-showcase' THEN 'calm'
+           WHEN 'product-story' THEN 'premium'
            ELSE NULL
          END
        ),
@@ -115,6 +119,7 @@ UPDATE video_templates
            WHEN 'product-highlight' THEN 20
            WHEN 'product-sale' THEN 30
            WHEN 'product-showcase' THEN 40
+           WHEN 'product-story' THEN 50
            ELSE 0
          END
          ELSE sort_order
@@ -150,7 +155,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_templates_category') THEN
     ALTER TABLE video_templates
       ADD CONSTRAINT chk_templates_category CHECK (
-        category IN ('launch','highlight','sale','showcase')
+        category IN ('launch','highlight','sale','showcase','story')
       );
   END IF;
 END $$;

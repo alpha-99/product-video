@@ -3,6 +3,7 @@ import { ProductHighlight } from "./ProductHighlight";
 import { ProductLaunch } from "./ProductLaunch";
 import { ProductSale } from "./ProductSale";
 import { PremiumShowcase } from "./PremiumShowcase";
+import { BrandStory } from "./BrandStory";
 import type { TemplateId } from "../src/shared/template.schema";
 import type { ProductVideoProps } from "../src/shared/video-props.schema";
 
@@ -15,4 +16,5 @@ export const COMPONENTS: Record<TemplateId, FC<ProductVideoProps>> = {
   "product-highlight": ProductHighlight,
   "product-sale": ProductSale,
   "product-showcase": PremiumShowcase,
+  "product-story": BrandStory,
 };

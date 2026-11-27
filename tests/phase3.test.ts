@@ -12,7 +12,7 @@ import { ProductVideoPropsSchema } from "../src/shared/video-props.schema";
 
 const ROOT = path.resolve(__dirname, "..");
 
-describe("首批 4 个模板组件（PRD 5.4）", () => {
+describe("首批 5 个模板组件（PRD 5.4）", () => {
   it("4 个组件均导出可渲染的 React 函数组件", () => {
     for (const component of [
       ProductLaunch,
@@ -25,7 +25,7 @@ describe("首批 4 个模板组件（PRD 5.4）", () => {
     }
   });
 
-  it("Root 按注册表挂载全部 4 个 Composition，时长由注册表推导", async () => {
+  it("Root 按注册表挂载全部 5 个 Composition，时长由注册表推导", async () => {
     const root = await readFile(path.join(ROOT, "remotion", "Root.tsx"), "utf8");
     const componentMap = await readFile(
       path.join(ROOT, "remotion", "component-map.ts"),
@@ -43,11 +43,11 @@ describe("首批 4 个模板组件（PRD 5.4）", () => {
 
     assert.deepEqual(
       TEMPLATES.map((t) => t.durationSec * t.fps),
-      [450, 600, 450, 600]
+      [450, 600, 450, 600, 600]
     );
   });
 
-  it("4 个模板的规格统一为 1080×1920 / 30fps / 9:16", () => {
+  it("5 个模板的规格统一为 1080×1920 / 30fps / 9:16", () => {
     for (const template of TEMPLATES) {
       assert.equal(template.width, 1080);
       assert.equal(template.height, 1920);

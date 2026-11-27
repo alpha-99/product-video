@@ -242,7 +242,7 @@ export default function CreatePage() {
         style={previewColor ? { background: `linear-gradient(160deg, ${previewColor}, oklch(31% 0.052 155))` } : undefined}
       >
         <div className="ph-top">
-          <span>{product?.brandName ?? "ProductVideo"}</span>
+          <span>{product?.brandName ?? "FrameReel"}</span>
           <span>{template?.durationSec ?? 15}s</span>
         </div>
         <div>

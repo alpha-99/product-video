@@ -128,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="app-body">
         {/* 窄屏（<1024px）主导航改顶部：额度、主题切换、退出一并收进顶部条 */}
         <div className="top-nav-bar">
-          <span className="tn-brand"><i>P</i> ProductVideo</span>
+          <span className="tn-brand"><i>F</i> FrameReel</span>
           <nav className="tn-links" aria-label="主导航">
             {navItems.map((item) => (
               <Link
@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <aside className="app-side">
-          <div className="logo"><i>P</i> ProductVideo</div>
+          <div className="logo"><i>F</i> FrameReel</div>
           <nav aria-label="主导航">
             {navItems.map((item) => (
               <Link

@@ -62,7 +62,7 @@ model Product {
 model VideoTemplate {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String   @db.VarChar(120)
-  /// launch / highlight / sale / showcase
+  /// launch / highlight / sale / showcase / story
   category       String   @db.VarChar(60)
   /// Remotion Composition ID
   compositionId  String   @map("composition_id") @db.VarChar(80)

@@ -12,7 +12,7 @@ import {
  *
  * 原则：AI 只产出文案 JSON，模板开发者维护视觉与动画。
  * 本文件负责三件事：
- *   1. 注册 4 个 Composition 及其规格 / 默认参数；
+ *   1. 注册 5 个 Composition 及其规格 / 默认参数；
  *   2. 定义文案与可配置项的 Schema；
  *   3. 把「商品 + 文案 + 可选项」纯函数映射成统一的渲染 Props。
  */
@@ -104,6 +104,7 @@ export const TEMPLATE_IDS = [
   "product-highlight",
   "product-sale",
   "product-showcase",
+  "product-story",
 ] as const;
 export const TemplateIdSchema = z.enum(TEMPLATE_IDS);
 export type TemplateId = z.infer<typeof TemplateIdSchema>;
@@ -121,7 +122,7 @@ export const VIDEO_SPEC = {
 export interface TemplateDefinition {
   id: TemplateId;
   name: string;
-  category: "launch" | "highlight" | "sale" | "showcase";
+  category: "launch" | "highlight" | "sale" | "showcase" | "story";
   compositionId: TemplateId;
   durationSec: 15 | 20;
   width: number;
@@ -250,6 +251,24 @@ export const TEMPLATES: readonly TemplateDefinition[] = [
       cta: "进入系列",
       price: "¥1,280",
       brandColor: "#92400e",
+    },
+  },
+  {
+    id: "product-story",
+    name: "Brand Story 品牌故事",
+    category: "story",
+    compositionId: "product-story",
+    durationSec: 20,
+    ...VIDEO_SPEC,
+    defaultProps: { ...baseDefaultProps, brandColor: "#4f46e5" },
+    sampleProps: {
+      title: "手作香氛礼盒",
+      subtitle: "一段气味构成的故事",
+      imageUrl: sampleImageUrl("#a5b4fc", "#312e81"),
+      sellingPoints: ["天然植物蜡", "48 小时留香", "可替换内芯"],
+      cta: "探索系列",
+      price: "¥268",
+      brandColor: "#4338ca",
     },
   },
 ];

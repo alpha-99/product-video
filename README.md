@@ -1,4 +1,4 @@
-# ProductVideo AI 开发指南
+# 帧片 FrameReel 开发指南
 
 > 面向本地开发与联调：如何启动、如何调试前端与后端、如何排障。
 > 最后更新：2026-11-27（阶段一～九已完成，部署配置见 `deploy/`；模板管理补全方案已落地为代码，§8 为管理员使用方式与**上线前必做清单**）。
@@ -29,7 +29,7 @@
 ```bash
 npm install                 # 或 npm ci
 npx prisma generate         # 首次 / 每次改 prisma/schema.prisma 后必须执行
-npm run migrate             # 按顺序应用 db/migrations/*.sql（幂等，含 4 套模板种子）
+npm run migrate             # 按顺序应用 db/migrations/*.sql（幂等，含 5 套模板种子）
 npm run migrate:check       # 校验表与索引
 npm run db:check            # 只读自检：连通性 / 7 张表 / RLS / 关键索引
 npm run ai:check            # 校验 AI 密钥、地址、该 key 下可用模型
@@ -165,7 +165,7 @@ Worker 关键日志前缀：`[worker] ready` / `[worker] job=... status=...` / `
 | `/login` | 登录注册 | `POST /api/auth/session` |
 | `/` | 工作台（额度/统计/最近生成） | `/api/me`、`/api/videos` |
 | `/products` | 商品增删改 + 图片上传 | `/api/products`、`/api/uploads/products` |
-| `/templates` | 4 套模板卡片 | `/api/templates` |
+| `/templates` | 5 套模板卡片 | `/api/templates` |
 | `/create` | 6 步创作向导、AI 文案、9:16 预览 | `/api/products`、`/api/templates`、`/api/ai/copy`、`POST /api/videos` |
 | `/videos` | 任务列表、播放/下载/重新生成/取消/删除 | `/api/videos`、`/api/videos/[id]/*` |
 | `/preview?t=product-launch` | Remotion Player 模板联调页 | 无（纯前端） |
@@ -206,7 +206,7 @@ Worker 关键日志前缀：`[worker] ready` / `[worker] job=... status=...` / `
 | GET / POST | `/api/products` | 商品列表 / 新建 |
 | GET / PATCH / DELETE | `/api/products/[id]` | 单个商品 |
 | POST / GET | `/api/uploads/products` | 图片上传 / 鉴权读取 |
-| GET | `/api/templates` | 已启用模板（4 套，按 compositionId 去重） |
+| GET | `/api/templates` | 已启用模板（5 套，按 compositionId 去重） |
 | POST | `/api/ai/copy` | AI 文案（10 次/分钟/用户限流，24h 缓存） |
 | GET / POST | `/api/videos` | 任务列表 / 幂等提交（扣额度） |
 | GET / DELETE | `/api/videos/[id]` | 详情 / 取消（返还额度）；`?purge=1` 删除终态任务记录与成片文件 |
@@ -370,7 +370,7 @@ npm run backup / npm run restore    # pg_dump 备份与恢复
 
 | 内容 | 普通用户 | 管理员 |
 |---|---|---|
-| 前台模板卡片 `/templates`、`GET /api/templates` | 可见（仅启用的 4 套） | 可见 |
+| 前台模板卡片 `/templates`、`GET /api/templates` | 可见（仅启用的 5 套） | 可见 |
 | 后台模板管理 `/admin/templates`（编辑/启停/同步/缩略图/审计） | 不可见、打不开、调不通 | 可见 |
 | 成员与角色 `/admin/users`（成员列表/复核/变更记录） | 不可见、打不开、调不通 | 可见 |
 | 自己的 `role` 字段（`GET /api/me`） | 可见，值为 `user` | 可见，值为 `admin` |
@@ -580,7 +580,7 @@ Go 条件：`--list` 显示 **2 名不同管理员**，`user_role_audit_logs` �
 
 **4. 模板配置验收**
 
-- `GET /api/templates` 只返回启用且注册表命中的模板（种子 4 套）；旧字段 `label` / `description` / `tone` 保留，新字段 `displayName` / `englishName` / `cta` / `sortOrder` / `thumbnailUrl` 存在，不带 ETag。
+- `GET /api/templates` 只返回启用且注册表命中的模板（种子 5 套）；旧字段 `label` / `description` / `tone` 保留，新字段 `displayName` / `englishName` / `cta` / `sortOrder` / `thumbnailUrl` 存在，不带 ETag。
 - `/admin/templates` 可编辑、排序、上传 PNG 缩略图；SVG 上传被拒；停用最后一套可渲染模板返回 409。
 - 同步注册表不覆盖运营元数据；注册缺失行自动停用并写审计。
 - 前台三个模板页缓存 TTL 为 60s；管理端写操作后调用 `invalidateAsyncCache("templates")` 立即失效。
@@ -612,7 +612,7 @@ src/lib/              服务端：db / auth / session / queue / pipeline / rende
                       storage / billing / ai / ops / health / admin-* 相关
 src/shared/           前后端共用 Zod Schema 与 API 契约
 src/worker/           Worker 主循环
-remotion/             4 套生产模板 + 免费模板测试入口
+remotion/             5 套生产模板 + 免费模板测试入口
 prisma/schema.prisma  数据模型
 db/migrations/        001 建表 / 002 用量 / 003 模板种子 / 004 运维表 / 005 模板管理
 scripts/              迁移、自检、巡检、告警、冒烟、渲染 CLI、set-user-role.ts（bootstrap/灾备）

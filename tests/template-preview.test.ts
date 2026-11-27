@@ -2,7 +2,7 @@
  * 模板选择页预览功能的静态回归守卫：
  * 1) 页面接入常驻预览面板与悬停预览，且保留单选卡片组的键盘语义；
  * 2) 播放器不再写死 480×854，可随容器宽度按 9:16 缩放；
- * 3) 4 套模板都带可通过 Props 契约校验的演示数据；
+ * 3) 5 套模板都带可通过 Props 契约校验的演示数据；
  * 4) 悬停预览尊重系统「减少动效」，且不自动抢占首屏加载。
  */
 import assert from "node:assert/strict";
@@ -52,8 +52,8 @@ describe("模板选择页：预览功能", () => {
     assert.match(preview, /spaceKeyToPlayOrPause=\{controls && spaceKeyToPlayOrPause\}/);
   });
 
-  it("4 套模板都有合法的演示数据，未注册 id 返回 null", () => {
-    assert.equal(TEMPLATES.length, 4);
+  it("5 套模板都有合法的演示数据，未注册 id 返回 null", () => {
+    assert.equal(TEMPLATES.length, 5);
     for (const template of TEMPLATES) {
       const parsed = ProductVideoPropsSchema.safeParse(template.sampleProps);
       assert.ok(parsed.success, `${template.id} 的 sampleProps 不符合契约: ${parsed.error?.message}`);

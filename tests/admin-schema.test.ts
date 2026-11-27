@@ -78,14 +78,14 @@ describe("005_template_admin.sql 迁移与约束", () => {
         cta: string;
         sort_order: number;
       }>("SELECT composition_id, display_name, english_name, cta, sort_order FROM video_templates ORDER BY sort_order");
-      assert.equal(rows.length, 4);
+      assert.equal(rows.length, 5);
       assert.deepEqual(
         rows.map((r) => r.composition_id),
-        ["product-launch", "product-highlight", "product-sale", "product-showcase"]
+        ["product-launch", "product-highlight", "product-sale", "product-showcase", "product-story"]
       );
       assert.deepEqual(
         rows.map((r) => r.sort_order),
-        [10, 20, 30, 40]
+        [10, 20, 30, 40, 50]
       );
       const launch = rows[0];
       assert.equal(launch.english_name, "Product Launch");
