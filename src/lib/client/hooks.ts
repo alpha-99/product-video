@@ -140,3 +140,37 @@ export function usePolling(callback: () => void, active: boolean, intervalMs = 5
     };
   }, [active, intervalMs]);
 }
+
+/** 系统开启「减少动效」时为 true；首帧固定 false，避免 SSR 与客户端首帧不一致。 */
+export function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return reduced;
+}
+
+/**
+ * 浏览器空闲后置 true：用于把非首屏必需的大块代码（如视频播放器）
+ * 推迟到首帧渲染之后再加载，不阻塞页面交互。
+ */
+export function useIdleReady(): boolean {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback !== "function") {
+      const timer = setTimeout(setReady, 200, true);
+      return () => clearTimeout(timer);
+    }
+    const id = w.requestIdleCallback(() => setReady(true), { timeout: 1500 });
+    return () => w.cancelIdleCallback?.(id);
+  }, []);
+  return ready;
+}

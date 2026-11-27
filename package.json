@@ -13,7 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/schema.test.ts tests/phase2.test.ts tests/phase3.test.ts tests/render.test.ts tests/thumbnail.test.ts tests/upload.test.ts tests/products.test.ts tests/product-patch.test.ts tests/color.test.ts tests/api-hardening.test.ts tests/asset-security.test.ts tests/acceptance-fixes.test.ts tests/pipeline.test.ts tests/queue.test.ts tests/migration.test.ts tests/prisma-schema.test.ts tests/ai-copy.test.ts tests/phase8.test.ts tests/phase9.test.ts tests/client-cache.test.ts tests/ui-contrast.test.ts tests/ui-audit.test.ts tests/regenerate.test.ts tests/layout-stability.test.ts tests/worker-resilience.test.ts",
+    "test": "tsx --test tests/schema.test.ts tests/phase2.test.ts tests/phase3.test.ts tests/render.test.ts tests/thumbnail.test.ts tests/upload.test.ts tests/products.test.ts tests/product-patch.test.ts tests/color.test.ts tests/api-hardening.test.ts tests/asset-security.test.ts tests/acceptance-fixes.test.ts tests/pipeline.test.ts tests/queue.test.ts tests/migration.test.ts tests/prisma-schema.test.ts tests/ai-copy.test.ts tests/phase8.test.ts tests/phase9.test.ts tests/client-cache.test.ts tests/ui-contrast.test.ts tests/ui-audit.test.ts tests/regenerate.test.ts tests/layout-stability.test.ts tests/worker-resilience.test.ts tests/template-preview.test.ts",
     "worker": "tsx src/worker/index.ts",
     "render": "remotion render",
     "compositions": "remotion compositions remotion/index.ts",

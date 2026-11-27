@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProductVideo AI · 模板管理补全 UI 原型 V1.0</title>
+<style>
+/* ============ Design Tokens：沿用 globals.css V1.1（OKLCH 暖调编辑风） ============ */
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:400 700;font-display:swap;src:url("../../public/fonts/fraunces-latin-var.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url("../../public/fonts/plus-jakarta-sans-latin-var.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{
+  --paper:oklch(97.5% .006 78);--paper-2:oklch(94.5% .01 78);--surface:oklch(100% 0 0);
+  --ink:oklch(25% .022 58);--ink-2:oklch(43% .016 58);--ink-3:oklch(52% .012 58);
+  --line:oklch(88% .012 75);--line-strong:oklch(80% .016 75);
+  --brand:oklch(44% .068 155);--brand-deep:oklch(31% .052 155);--brand-soft:oklch(94% .022 155);--brand-tint:oklch(97.5% .01 155);
+  --gold:oklch(74% .095 78);--gold-deep:oklch(58% .085 62);--gold-soft:oklch(95% .024 78);
+  --success-soft:oklch(95% .03 150);--error-soft:oklch(96% .02 26);--warning-soft:oklch(96% .03 78);--info-soft:oklch(95% .025 235);
+  --success-fg:oklch(52% .105 150);--info-fg:oklch(52% .09 235);--warning-fg:oklch(54% .085 62);--error-fg:oklch(54% .16 26);--error-solid:oklch(46% .16 26);
+  --brand-fg:var(--brand);--focus-ring:var(--brand);
+  --font-display:"Fraunces","Songti SC","STSong",Georgia,serif;
+  --font-sans:"Plus Jakarta Sans",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --fs-xs:.72rem;--fs-sm:.82rem;--fs-base:.95rem;--fs-md:1.1rem;--fs-lg:1.5rem;
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+  --r-sm:8px;--r-md:12px;--r-lg:18px;--r-xl:26px;
+  --shadow-1:0 1px 2px oklch(25% .02 58/.05);--shadow-2:0 8px 28px -12px oklch(25% .03 58/.18);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+:root[data-theme="dark"]{
+  --paper:oklch(17% .012 70);--paper-2:oklch(21% .015 70);--surface:oklch(23% .014 70);
+  --ink:oklch(94% .008 75);--ink-2:oklch(78% .012 75);--ink-3:oklch(62% .012 70);
+  --line:oklch(32% .014 70);--line-strong:oklch(40% .016 70);
+  --brand-soft:oklch(28% .035 155);--brand-tint:oklch(22% .02 155);--gold-soft:oklch(28% .03 78);
+  --success-soft:oklch(26% .04 150);--error-soft:oklch(27% .05 26);--warning-soft:oklch(28% .04 78);--info-soft:oklch(27% .04 235);
+  --success-fg:oklch(70% .105 150);--info-fg:oklch(70% .09 235);--warning-fg:oklch(70% .085 62);--error-fg:oklch(70% .16 26);
+  --brand-fg:oklch(74% .09 155);--focus-ring:oklch(74% .095 78);
+  --shadow-1:0 1px 2px oklch(0 0 0/.3);--shadow-2:0 10px 30px -10px oklch(0 0 0/.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scrollbar-gutter:stable}
+body{font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.6;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;padding-top:52px}
+a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:3px;border-radius:4px}
+h1,h2,h3,h4{font-weight:600}
+.tabular{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-3);font-size:.76rem;line-height:1.5}
+
+/* ============ 原型工具条（非产品 UI） ============ */
+.proto-bar{position:fixed;inset:0 0 auto;height:52px;z-index:300;background:var(--brand-deep);color:#fff;display:flex;align-items:center;gap:12px;padding:0 16px;box-shadow:var(--shadow-2)}
+.proto-bar .pb-mark{font-family:var(--font-display);font-size:.95rem;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.proto-bar .pb-mark i{width:24px;height:24px;border-radius:6px;background:var(--gold);color:var(--brand-deep);display:grid;place-items:center;font-style:normal;font-size:.72rem;font-weight:700}
+.proto-bar select{min-height:34px;max-width:320px;padding:0 8px;border-radius:8px;border:1px solid oklch(100% 0 0/.35);background:oklch(100% 0 0/.12);color:#fff;font-size:.78rem;font-family:inherit}
+.proto-bar select option{background:var(--brand-deep);color:#fff}
+.proto-bar .pb-note{margin-left:auto;font-size:.72rem;opacity:.85;max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proto-bar .pb-toggle{min-height:34px;padding:0 10px;border-radius:8px;border:1px solid oklch(100% 0 0/.35);background:transparent;color:#fff;font-size:.74rem;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.proto-bar .pb-toggle[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--brand-deep)}
+
+/* ============ App shell ============ */
+.app-body{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 52px)}
+.app-side{background:var(--surface);border-right:1px solid var(--line);padding:var(--sp-6) 0;display:flex;flex-direction:column;position:sticky;top:52px;height:calc(100vh - 52px)}
+.app-side .logo{padding:0 20px var(--sp-8);font-family:var(--font-display);font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.app-side .logo i{width:26px;height:26px;border-radius:7px;background:var(--brand-deep);color:var(--gold);display:grid;place-items:center;font-size:.8rem;font-style:normal}
+.app-side nav{display:flex;flex-direction:column;gap:2px}
+.app-side nav .nav-cap{padding:14px 20px 4px;font-size:.64rem;letter-spacing:.14em;color:var(--ink-3);font-weight:700}
+.app-side nav a{display:flex;align-items:center;gap:10px;padding:11px 20px;min-height:44px;font-size:.82rem;color:var(--ink-2);font-weight:600;border-left:3px solid transparent;transition:all .18s var(--ease)}
+.app-side nav a .ico{width:18px;text-align:center;opacity:.85}
+.app-side nav a:hover{background:var(--paper-2)}
+.app-side nav a.active{background:var(--brand-tint);color:var(--brand-deep);border-left-color:var(--brand-fg)}
+.app-side nav a.sub{padding-left:32px;font-size:.78rem}
+.side-foot{margin-top:auto;padding:var(--sp-4) 20px;font-size:.72rem;color:var(--ink-3);border-top:1px solid var(--line)}
+.side-foot b{color:var(--brand-fg)}
+.top-nav-bar{display:none;position:sticky;top:52px;z-index:50;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-nav-bar .tn-brand{display:inline-flex;align-items:center;gap:8px;min-height:40px;font-family:var(--font-display);font-size:.9rem;font-weight:600}
+.top-nav-bar .tn-brand i{width:24px;height:24px;border-radius:6px;background:var(--brand-deep);color:var(--gold);display:grid;place-items:center;font-style:normal;font-size:.72rem}
+.top-nav-bar .tn-links{display:flex;flex-wrap:wrap;gap:2px}
+.top-nav-bar .tn-links a{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 9px;border-radius:var(--r-sm);font-size:.74rem;font-weight:600;color:var(--ink-2)}
+.top-nav-bar .tn-links a.active{background:var(--brand-tint);color:var(--brand-fg);box-shadow:inset 0 0 0 1px var(--brand-fg)}
+.top-nav-bar .tn-account{margin-left:auto;display:flex;align-items:center;gap:6px}
+.app-main{padding:clamp(20px,3vw,36px);min-width:0;max-width:1500px;width:100%}
+.app-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:var(--sp-6);flex-wrap:wrap}
+.app-top h1{font-family:var(--font-display);font-size:var(--fs-lg);font-weight:500;line-height:1.3}
+.top-ops{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.who{display:flex;align-items:center;gap:8px}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(140deg,var(--gold),var(--gold-deep));color:#fff;display:grid;place-items:center;font-size:.72rem;font-weight:700}
+
+/* ============ Base components ============ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:10px;font-weight:600;font-size:.86rem;border:1px solid transparent;transition:all .2s var(--ease);white-space:nowrap}
+.btn-primary{background:var(--brand-deep);color:#fff}.btn-primary:hover{background:var(--brand);transform:translateY(-1px);box-shadow:var(--shadow-2)}
+.btn-ghost{background:transparent;border-color:var(--line-strong);color:var(--ink)}.btn-ghost:hover{border-color:var(--brand-fg);color:var(--brand-fg)}
+.btn-danger{background:var(--error-solid);color:#fff}.btn-danger:hover{filter:brightness(1.1)}
+.btn-sm{min-height:44px;padding:0 14px;font-size:.78rem}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.icon-btn{width:44px;height:44px;min-width:44px;min-height:44px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface);color:var(--ink-2);display:grid;place-items:center;font-size:.82rem}
+.icon-btn:hover{border-color:var(--brand-fg);color:var(--brand-fg)}
+.icon-btn.sm{width:40px;height:40px;min-width:40px;min-height:40px;font-size:.78rem}
+.icon-btn:disabled{opacity:.4;cursor:not-allowed}
+.link-btn{min-height:44px;padding:0 8px;background:none;border:none;color:var(--brand-fg);font-size:.78rem;font-weight:700;display:inline-flex;align-items:center}
+.link-btn:hover{text-decoration:underline}
+.link-btn:disabled{color:var(--ink-3);cursor:not-allowed;text-decoration:none}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font-size:.74rem;font-weight:700;white-space:nowrap}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.badge.ok{background:var(--success-soft);color:var(--success-fg)}
+.badge.wait{background:var(--warning-soft);color:var(--warning-fg)}
+.badge.fail{background:var(--error-soft);color:var(--error-fg)}
+.badge.neutral{background:var(--paper-2);color:var(--ink-2)}
+.badge.info{background:var(--info-soft);color:var(--info-fg)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--sp-4);margin-bottom:var(--sp-5)}
+.stat{padding:var(--sp-5) var(--sp-6);border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+.stat .k{font-size:.7rem;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.stat .v{font-family:var(--font-display);font-size:2rem;line-height:1.15;margin-top:6px}
+.stat .v small{font-size:.72rem;color:var(--ink-3);font-family:var(--font-sans);font-weight:500}
+.stat.accent{background:linear-gradient(140deg,var(--brand-deep),var(--brand));color:#fff;border-color:transparent}
+.stat.accent .k,.stat.accent .v small{color:oklch(100% 0 0/.82)}
+
+/* ============ Banners / filters / tables ============ */
+.boundary{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:var(--sp-4) var(--sp-5);border:1px solid var(--gold);border-radius:10px;background:var(--gold-soft);font-size:.82rem;margin-bottom:var(--sp-4)}
+.boundary.danger{border-color:var(--error-fg);background:var(--error-soft)}
+.boundary b{display:block;font-size:.84rem}.boundary span{color:var(--ink-2);font-size:.74rem;line-height:1.6}
+.error-banner{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:var(--sp-4) var(--sp-5);border:1px solid var(--error-fg);border-radius:var(--r-md);background:var(--error-soft);color:var(--error-fg);font-size:.82rem;margin-bottom:var(--sp-4)}
+.error-banner b{display:block;margin-bottom:2px}
+.error-banner code{font-family:ui-monospace,monospace;font-size:.72rem;background:oklch(0 0 0/.07);padding:2px 6px;border-radius:4px}
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:var(--sp-3) var(--sp-4);border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);margin-bottom:var(--sp-4)}
+.filter-bar input,.filter-bar select{min-height:44px;padding:0 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:.8rem}
+.filter-bar input[type="search"]{min-width:240px;flex:1;max-width:360px}
+.filter-bar .spacer{flex:1}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+.data-table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:980px}
+.data-table th{text-align:left;padding:12px 14px;background:var(--paper-2);color:var(--ink-2);font-weight:700;font-size:.72rem;white-space:nowrap;border-bottom:1px solid var(--line)}
+.data-table td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover{background:var(--brand-tint)}
+.reg-missing-row{background:var(--error-soft)}
+.reg-missing-row td:first-child{box-shadow:inset 3px 0 0 var(--error-fg)}
+.data-table tbody tr.reg-missing-row:hover{background:var(--error-soft)}
+.data-table .main-cell b{display:block;font-size:.82rem}
+.data-table .sub{font-size:.68rem;color:var(--ink-3);font-family:ui-monospace,monospace}
+.row-ops{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.thumb{width:44px;height:64px;border-radius:7px;display:grid;place-items:center;overflow:hidden;color:#fff;font-size:.5rem;text-align:center;box-shadow:var(--shadow-1)}
+.thumb.g1{background:linear-gradient(160deg,oklch(78% .06 78),oklch(48% .09 155))}
+.thumb.g2{background:linear-gradient(160deg,oklch(85% .05 25),oklch(55% .1 30))}
+.thumb.g3{background:linear-gradient(160deg,oklch(88% .03 155),oklch(45% .07 200))}
+.thumb.g4{background:linear-gradient(160deg,oklch(90% .04 95),oklch(60% .09 65))}
+.thumb.none{background:var(--paper-2);color:var(--ink-3);border:1px dashed var(--line-strong)}
+.chip{display:inline-block;padding:3px 9px;border-radius:6px;background:var(--paper-2);color:var(--ink-2);font-size:.7rem;font-weight:600}
+.reg-ok{color:var(--success-fg);font-weight:700;font-size:.74rem}
+.reg-bad{color:var(--error-fg);font-weight:700;font-size:.74rem;display:inline-flex;align-items:center;gap:5px}
+.table-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;font-size:.74rem;color:var(--ink-3);flex-wrap:wrap}
+.empty-state{padding:var(--sp-12) var(--sp-6);text-align:center;border:1px dashed var(--line-strong);border-radius:var(--r-md);color:var(--ink-3);background:var(--surface)}
+.empty-state .em-ico{font-size:2rem;opacity:.5}.empty-state p{margin:var(--sp-3) 0 var(--sp-5);font-size:.85rem}
+
+/* ============ Tabs（成员与角色） ============ */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:var(--sp-5);overflow-x:auto}
+.tab{min-height:48px;padding:0 16px;background:none;border:none;border-bottom:3px solid transparent;color:var(--ink-2);font-size:.85rem;font-weight:700;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.tab:hover{color:var(--brand-fg)}
+.tab[aria-selected="true"]{color:var(--brand-fg);border-bottom-color:var(--brand-fg)}
+.tab .count{font-size:.68rem;background:var(--paper-2);color:var(--ink-2);padding:1px 7px;border-radius:99px}
+.tab .count.hot{background:var(--error-soft);color:var(--error-fg)}
+.tab .dot{width:8px;height:8px;border-radius:50%;background:var(--error-solid)}
+.review-card{padding:var(--sp-5);border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);margin-bottom:var(--sp-3)}
+.review-card.mine{border-style:dashed;background:var(--paper-2)}
+.review-card.expired{opacity:.78}
+.review-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.review-head b{font-size:.9rem}
+.review-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px 16px;font-size:.76rem;color:var(--ink-2);margin-bottom:12px}
+.review-meta span{color:var(--ink-3);display:block;font-size:.68rem}
+.review-reason{font-size:.8rem;color:var(--ink-2);padding:10px 12px;border-radius:8px;background:var(--paper-2);margin-bottom:12px}
+
+/* ============ Modal / Toast ============ */
+.modal-mask{position:fixed;inset:0;z-index:200;background:oklch(20% .02 58/.45);display:grid;place-items:center;padding:20px}
+.modal{width:min(640px,100%);max-height:88vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-2);padding:var(--sp-6)}
+.modal.wide{width:min(780px,100%)}
+.modal h2{font-family:var(--font-display);font-size:1.3rem;margin-bottom:var(--sp-2);line-height:1.4}
+.modal h2:focus{outline:none}
+.modal .lede{font-size:.78rem;color:var(--ink-3);margin-bottom:var(--sp-6)}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:var(--sp-6);padding-top:var(--sp-4);border-top:1px solid var(--line);position:sticky;bottom:-24px;background:var(--surface);flex-wrap:wrap;z-index:2}
+.form-section{border:1px solid var(--line);border-radius:var(--r-md);padding:var(--sp-5);margin-bottom:var(--sp-4)}
+.form-section h3{font-size:.85rem;margin-bottom:var(--sp-4);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{font-size:.66rem;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--brand-soft);color:var(--brand-deep)}
+.tag.ro{background:var(--paper-2);color:var(--ink-3)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--sp-4)}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-size:.78rem;font-weight:700}
+.field input,.field textarea,.field select{min-height:44px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink);font-size:.84rem;font-family:inherit}
+.field textarea{resize:vertical;line-height:1.6}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--brand-fg);box-shadow:0 0 0 3px var(--brand-soft)}
+.field input:disabled{background:var(--paper-2);color:var(--ink-3)}
+.field .hint{font-size:.68rem;color:var(--ink-3);line-height:1.5}
+.field.full{grid-column:1/-1}
+.readonly-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.readonly-grid div{padding:10px 12px;border-radius:8px;background:var(--paper-2)}
+.readonly-grid span{display:block;font-size:.66rem;color:var(--ink-3);margin-bottom:2px}
+.readonly-grid code{font-size:.78rem;font-weight:700;font-family:ui-monospace,monospace}
+.modal-note{font-size:.72rem;color:var(--ink-3);padding:10px 12px;border-left:3px solid var(--brand-fg);background:var(--brand-tint);border-radius:0 8px 8px 0;line-height:1.6}
+.warn-box{border:1px solid var(--warning-fg);background:var(--warning-soft);border-radius:var(--r-md);padding:var(--sp-4);margin-bottom:var(--sp-4);font-size:.8rem}
+.warn-box b{display:block;margin-bottom:6px}
+.warn-box ul{margin:0;padding-left:18px;line-height:1.9}
+.confirm-input{margin-top:12px}
+.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:var(--sp-5)}
+.result-grid div{text-align:center;padding:var(--sp-4) 8px;border-radius:10px;background:var(--paper-2)}
+.result-grid b{display:block;font-family:var(--font-display);font-size:1.5rem}
+.result-grid span{font-size:.68rem;color:var(--ink-3)}
+.audit-list{display:flex;flex-direction:column;gap:12px}
+.audit-item{position:relative;padding-left:20px;border-left:2px solid var(--line-strong)}
+.audit-item::before{content:"";position:absolute;left:-6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--brand-fg)}
+.audit-item .t{font-size:.68rem;color:var(--ink-3)}
+.audit-item .a{font-size:.82rem;font-weight:700;margin:2px 0 4px}
+.audit-item .d{font-size:.72rem;font-family:ui-monospace,monospace;background:var(--paper-2);padding:8px 10px;border-radius:8px;line-height:1.7;word-break:break-all}
+.diff-del{color:var(--error-fg)}.diff-add{color:var(--success-fg)}
+.dropzone{min-height:170px;border:2px dashed var(--line-strong);border-radius:var(--r-md);display:grid;place-items:center;text-align:center;color:var(--ink-3);background:var(--paper-2);font-size:.82rem;padding:20px;line-height:1.8}
+.dropzone b{display:block;color:var(--ink-2);font-size:.9rem}
+.upload-preview{display:flex;align-items:center;gap:12px;margin-top:12px}
+.upload-preview .thumb{width:56px;height:80px}
+.toast-stack{position:fixed;right:20px;bottom:20px;z-index:400;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 16px;border-radius:10px;font-size:.82rem;box-shadow:var(--shadow-2);background:var(--brand-deep);color:#fff;max-width:360px;line-height:1.6}
+.toast.error{background:var(--error-solid)}
+
+/* ============ 403 / 401 / 前台影响 ============ */
+.state-page{min-height:60vh;display:grid;place-items:center;text-align:center}
+.state-card{max-width:520px;padding:var(--sp-10);border:1px solid var(--line);border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--shadow-1)}
+.state-card .em-ico{font-size:2.6rem;opacity:.75;margin-bottom:var(--sp-4)}
+.state-card h1{font-family:var(--font-display);font-size:1.5rem;margin-bottom:var(--sp-3)}
+.state-card p{font-size:.84rem;color:var(--ink-2);line-height:1.8;margin-bottom:var(--sp-6)}
+.front-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--sp-6);align-items:start}
+.front-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:var(--sp-3);flex-wrap:wrap}
+.front-heading h2{font-size:.95rem}
+.page-divider{display:flex;align-items:center;gap:12px;margin:var(--sp-6) 0 var(--sp-5);color:var(--ink-3)}
+.page-divider::before,.page-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.page-divider span{font-size:.7rem;letter-spacing:.04em;white-space:nowrap;padding:5px 14px;border:1px dashed var(--line-strong);border-radius:99px;background:var(--surface);color:var(--ink-2)}
+.tpl-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:var(--sp-6);align-items:start}
+.tpl-panel{border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);padding:var(--sp-4)}
+.tpl-panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:var(--sp-3)}
+.tpl-panel-head b{font-size:.9rem;white-space:nowrap}
+.tpl-panel-head span{font-size:.68rem;color:var(--ink-3);text-align:right}
+.player{aspect-ratio:9/16;border-radius:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:12px;background:linear-gradient(165deg,oklch(31% .035 165),oklch(18% .02 165));color:#fff;box-shadow:var(--shadow-1)}
+.player-progress{height:3px;border-radius:99px;background:oklch(100% 0 0/.28)}
+.player-progress i{display:block;width:22%;height:100%;border-radius:99px;background:var(--brand)}
+.player-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:oklch(100% 0 0/.16);border:1px solid oklch(100% 0 0/.5);display:grid;place-items:center;font-size:.9rem}
+.player-ctl{display:flex;align-items:center;justify-content:space-between;font-size:.68rem}
+.player-ctl .time{font-variant-numeric:tabular-nums}
+.tpl-panel .btn{width:100%;margin-top:var(--sp-3)}
+.preview-cap{text-align:center;font-size:.66rem;color:var(--ink-3);margin-top:10px;line-height:1.5}
+.tone-hl{background:linear-gradient(160deg,oklch(78% .055 175),oklch(42% .075 168))}
+.tone-launch{background:linear-gradient(160deg,oklch(80% .06 125),oklch(40% .065 145))}
+.tone-sale{background:linear-gradient(160deg,oklch(80% .07 25),oklch(50% .1 25))}
+.tone-premium{background:linear-gradient(160deg,oklch(85% .05 80),oklch(50% .08 65))}
+.tpl-left{display:flex;flex-direction:column;gap:var(--sp-4);min-width:0}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:var(--sp-4)}
+/* 预览交互决策：评审标注层，默认隐藏，仅「设计标注」开启时显示 */
+.anno-spec{display:none}
+.anno-on .anno-spec{flex:1;display:flex;flex-direction:column;gap:var(--sp-3);border:2px dashed var(--gold-deep);border-radius:var(--r-md);background:var(--gold-soft);padding:var(--sp-5)}
+.anno-spec h3{font-size:.8rem;display:flex;align-items:center;gap:8px;color:var(--gold-deep)}
+.anno-spec ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.anno-spec li{position:relative;padding-left:20px;font-size:.74rem;color:var(--ink-2);line-height:1.6}
+.anno-spec li::before{content:"▸";position:absolute;left:2px;color:var(--gold-deep);font-weight:700}
+.pick-card{border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);overflow:hidden}
+.pick-card.selected{box-shadow:0 0 0 2px var(--brand-fg)}
+.pick-card .visual{aspect-ratio:9/16;padding:12px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;font-size:.62rem}
+.pick-card .visual b{font-family:var(--font-display);font-size:.85rem;line-height:1.2}
+.pick-card .meta{padding:8px 10px;font-size:.7rem}
+.pick-card .meta span{display:block;color:var(--ink-3);font-size:.64rem}
+.vlist{display:flex;flex-direction:column;gap:var(--sp-3)}
+.vrow{display:grid;grid-template-columns:44px 1fr auto;gap:var(--sp-3);align-items:center;padding:10px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+.vrow .mini{aspect-ratio:9/16;border-radius:6px}
+.vrow b{font-size:.8rem;display:block}.vrow span{font-size:.68rem;color:var(--ink-3)}
+.vrow .ops{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+/* ============ 设计标注模式 ============ */
+.anno-on [data-anno]{position:relative;outline:2px dashed var(--gold-deep);outline-offset:3px}
+.anno-on [data-anno]::after{content:attr(data-anno);position:absolute;top:-11px;right:-4px;z-index:5;background:var(--gold-deep);color:#fff;font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:99px;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+
+/* ============ Responsive ============ */
+@media (min-width:1024px){.top-nav-bar,.mobile-only{display:none}}
+@media (max-width:1023px){
+  .app-body{grid-template-columns:1fr}
+  .app-side{display:none}
+  .top-nav-bar{display:flex}
+  .app-main{padding:20px}
+  .top-ops .who .muted{display:none}
+  .proto-bar .pb-note{display:none}
+  .tpl-layout{grid-template-columns:1fr}
+  .tpl-panel{order:-1;max-width:360px;margin:0 auto;width:100%}
+}
+@media (max-width:639px){
+  .app-main{padding:16px}
+  .proto-bar{padding:0 10px;gap:8px}
+  .proto-bar .pb-mark{font-size:.8rem}
+  .proto-bar select{max-width:170px}
+  .result-grid{grid-template-columns:repeat(2,1fr)}
+  .modal{padding:var(--sp-4)}
+  .modal-mask{padding:12px}
+  .toast-stack{left:12px;right:12px;bottom:12px}
+  .toast{max-width:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div class="proto-bar" role="region" aria-label="原型场景控制">
+  <span class="pb-mark"><i>P</i> 模板管理 UI 原型 <span style="opacity:.7;font-size:.72rem">V1.0</span></span>
+  <select id="sceneSelect" aria-label="选择原型场景"></select>
+  <button class="pb-toggle" id="annoToggle" aria-pressed="false" title="显示设计决策标注">◈ 设计标注</button>
+  <button class="pb-toggle" id="themeToggle" aria-pressed="false" title="切换深浅主题">◐ 暗色</button>
+  <span class="pb-note" id="sceneNote"></span>
+</div>
+
+<div class="app-body">
+  <aside class="app-side">
+    <div class="logo"><i>P</i> ProductVideo</div>
+    <nav aria-label="主导航">
+      <a href="#" data-nav="home"><span class="ico" aria-hidden="true">◫</span> 工作台</a>
+      <a href="#" data-nav="create"><span class="ico" aria-hidden="true">✦</span> 视频创作</a>
+      <a href="#" data-nav="products"><span class="ico" aria-hidden="true">▦</span> 商品管理</a>
+      <a href="#" data-nav="templates"><span class="ico" aria-hidden="true">▤</span> 模板选择</a>
+      <a href="#" data-nav="videos"><span class="ico" aria-hidden="true">▶</span> 视频管理</a>
+      <div class="nav-cap">管理后台</div>
+      <a href="#" class="sub" data-nav="templates-admin"><span class="ico" aria-hidden="true">⚙</span> 模板管理</a>
+      <a href="#" class="sub" data-nav="users-admin"><span class="ico" aria-hidden="true">♙</span> 成员与角色</a>
+    </nav>
+    <div class="side-foot">剩余额度 <b>—</b> 次</div>
+  </aside>
+
+  <div class="top-nav-bar">
+    <span class="tn-brand"><i>P</i> ProductVideo</span>
+    <nav class="tn-links" aria-label="主导航">
+      <a href="#" data-nav="home">◫ 工作台</a>
+      <a href="#" data-nav="create">✦ 创作</a>
+      <a href="#" data-nav="templates">▤ 模板</a>
+      <a href="#" data-nav="templates-admin">⚙ 模板管理</a>
+      <a href="#" data-nav="users-admin">♙ 成员</a>
+    </nav>
+    <div class="tn-account"><span class="avatar">A</span></div>
+  </div>
+
+  <main class="app-main" id="mainContent" tabindex="-1"></main>
+</div>
+
+<div id="modalRoot"></div>
+<div class="toast-stack" id="toastRoot" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   原型数据（全部虚构；与 PRD §5/§8/§9 字段口径一致）
+   ============================================================ */
+const TEMPLATES = [
+  {id:"t1",name:"新品发布 · 竖版",english:"Product Launch",cid:"product-launch",cat:"launch",catLabel:"新品发布",duration:15,sort:10,enabled:true,registered:true,thumb:"g1",version:3,desc:"聚焦新品卖点，快节奏揭晓产品亮点。",cta:"立即购买",tone:"energetic"},
+  {id:"t2",name:"亮点精选 · 电影感",english:"Highlight Reel",cid:"product-highlight",cat:"highlight",catLabel:"亮点展示",duration:20,sort:20,enabled:true,registered:true,thumb:"g2",version:2,desc:"以电影感镜头呈现核心差异化优势。",cta:"了解更多",tone:"premium"},
+  {id:"t3",name:"限时促销 · 倒计时",english:"Season Sale",cid:"season-sale",cat:"sale",catLabel:"限时促销",duration:15,sort:30,enabled:true,registered:true,thumb:"g3",version:5,desc:"突出优惠力度与限时氛围，促进转化。",cta:"马上抢购",tone:"urgent"},
+  {id:"t4",name:"品牌展示 · 静谧",english:"Brand Showcase",cid:"brand-showcase",cat:"showcase",catLabel:"场景展示",duration:20,sort:40,enabled:false,registered:true,thumb:"g4",version:1,desc:"安静克制地讲述品牌故事与使用场景。",cta:"探索系列",tone:"calm"},
+  {id:"t5",name:"旧版发布模板",english:"Legacy Launch",cid:"legacy-launch",cat:"launch",catLabel:"新品发布",duration:15,sort:50,enabled:false,registered:false,thumb:"none",version:1,desc:"历史模板，注册表已移除对应 Composition。",cta:"查看详情",tone:"calm"},
+  {id:"t6",name:"双十一特别版（待配置）",english:"Double 11 Special",cid:"double11-special",cat:"sale",catLabel:"限时促销",duration:20,sort:60,enabled:false,registered:true,thumb:"none",version:1,desc:"",cta:"",tone:""}
+];
+
+const USERS = [
+  {id:"u1",email:"admin@productvideo.cn",role:"admin",created:"2026-11-20 09:10",self:true},
+  {id:"u2",email:"backup.admin@productvideo.cn",role:"admin",created:"2026-11-20 09:12"},
+  {id:"u3",email:"li.wei@productvideo.cn",role:"user",created:"2026-11-25 14:03"},
+  {id:"u4",email:"zhang.san@productvideo.cn",role:"user",created:"2026-11-26 10:31"},
+  {id:"u5",email:"chen.jing@productvideo.cn",role:"user",created:"2026-11-26 16:48"}
+];
+
+const REQUESTS = [
+  {id:"r1",target:"li.wei@productvideo.cn",by:"backup.admin@productvideo.cn",reason:"接手模板运营工作，需要管理后台权限。",left:"18 小时",status:"pending"},
+  {id:"r2",target:"zhang.san@productvideo.cn",by:"backup.admin@productvideo.cn",reason:"活动期间负责模板上架与启停。",left:"6 小时",status:"pending"},
+  {id:"r3",target:"chen.jing@productvideo.cn",by:"admin@productvideo.cn",reason:"临时接管运营。",status:"mine",left:"21 小时"},
+  {id:"r4",target:"old.user@productvideo.cn",by:"backup.admin@productvideo.cn",reason:"历史申请。",status:"expired",left:"已过期"}
+];
+
+const ROLE_AUDITS = [
+  {time:"2026-11-27 09:12",target:"backup.admin@productvideo.cn",from:"user",to:"admin",actor:"运维脚本（工单 WD-20261127-01）",source:"script",reason:"初始化备用管理员"}
+];
+
+const TEMPLATE_AUDITS = [
+  {time:"2026-11-27 14:32",actor:"admin@productvideo.cn",action:"停用模板",reason:"促销活动结束，暂时下架",before:'{ "enabled": true, "sortOrder": 30 }',after:'{ "enabled": false }'},
+  {time:"2026-11-26 10:05",actor:"backup.admin@productvideo.cn",action:"编辑元数据",reason:"文案微调",before:'{ "displayName": "促销倒计时", "cta": "立即抢购" }',after:'{ "displayName": "限时促销 · 倒计时", "cta": "马上抢购" }'},
+  {time:"2026-11-25 16:40",actor:"admin@productvideo.cn",action:"auto_disabled_registry_missing",reason:"注册表已移除该 Composition",before:'{ "enabled": true }',after:'{ "enabled": false }'}
+];
+
+/* ============================================================
+   场景定义
+   ============================================================ */
+const SCENES = {
+  "tpl-normal":  {label:"模板管理 · 正常列表",                  group:"模板管理", note:"全量列表 / 筛选 / 启停 / 同步入口；注册缺失行禁用启用"},
+  "tpl-last":    {label:"模板管理 · 最后一套守卫（409）",        group:"模板管理", note:"可渲染启用数 = 1，停用被服务端拦截；前台仅剩 1 张卡片与 1 套实时预览"},
+  "tpl-empty":   {label:"模板管理 · 筛选无结果 / 空态",           group:"模板管理", note:"空态引导同步注册表，不允许静默空白"},
+  "tpl-edit":    {label:"弹窗 · 编辑模板元数据",                  group:"模板管理", note:"运营字段可编辑；渲染契约只读；version 乐观锁"},
+  "tpl-disable": {label:"弹窗 · 停用确认（原因选填）",             group:"模板管理", note:"展示影响面：retry 不受影响 / regenerate 被拒"},
+  "tpl-thumb":   {label:"弹窗 · 上传缩略图",                      group:"模板管理", note:"PNG/JPG/WEBP，≤10MB；拒绝 SVG 与 MIME 不符"},
+  "tpl-sync":    {label:"弹窗 · 注册表同步结果",                  group:"模板管理", note:"新增 / 跳过 / 自动停用 / 异常，不覆盖已编辑元数据"},
+  "tpl-audit":   {label:"弹窗 · 模板操作审计",                    group:"模板管理", note:"before/after 可视化；审计与主操作同事务"},
+  "tpl-sort":    {label:"弹窗 · 批量调整排序",                    group:"模板管理", note:"分类固定 4 类枚举，sortOrder 0~999"},
+  "usr-list":    {label:"成员与角色 · 成员列表",                  group:"成员与角色", note:"只读最小字段；精确 email 匹配 + 10 次/分限流"},
+  "usr-review":  {label:"成员与角色 · 待复核（红点）",             group:"成员与角色", note:"发起人不可自批；过期单不可批准；24h 有效"},
+  "usr-audit":   {label:"成员与角色 · 角色变更记录",               group:"成员与角色", note:"web / script 全量留痕，不记邮箱明文"},
+  "usr-request": {label:"弹窗 · 申请设为管理员",                   group:"成员与角色", note:"reason 必填；提交后由另一名 admin 复核"},
+  "usr-revoke":  {label:"弹窗 · 撤销管理员（输入邮箱确认）",        group:"成员与角色", note:"禁改自己；admin 数 ≥1；reason 必填"},
+  "usr-approve": {label:"弹窗 · 批准提权复核",                    group:"成员与角色", note:"审批人 ≠ 发起人；条件更新 + 同事务审计"},
+  "err-403":     {label:"异常态 · 403 无权限",                    group:"异常态", note:"服务端 gate；普通用户直输 URL 被拦"},
+  "err-401":     {label:"异常态 · 401 账号未初始化",               group:"异常态", note:"JWT 合法但 users 无行，不泄露后台数据"},
+  "err-lastadmin":{label:"异常态 · 最后一名管理员不可撤销",         group:"异常态", note:"409 ROLE_LAST_ADMIN，DB 不变"},
+  "front":       {label:"前台影响 · 实时预览与任务口径",             group:"前台影响", note:"右侧常驻预览 + 卡片悬停静音预览；retry 可用 / regenerate 被拒"}
+};
+
+let currentScene = "tpl-normal";
+let activeSceneKey = "tpl-normal";
+let currentTab = "list";
+let lastFocused = null;
+
+/* ============================================================
+   工具函数
+   ============================================================ */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function accountBlock(){return '<div class="who"><span class="muted">剩余额度 — 次</span><span class="avatar" title="管理员账号">A</span><span class="badge ok" data-anno="角色只认 users.role，前端入口仅展示">管理员</span><button class="icon-btn" aria-label="切换主题" data-action="theme">◐</button><button class="icon-btn" aria-label="退出登录" data-action="logout">↪</button></div>';}
+function topTitle(title,sub){return '<div class="app-top"><div><h1>'+title+'</h1><p class="muted">'+sub+'</p></div>'+accountBlock()+'</div>';}
+function activeNav(){if(currentScene.indexOf("usr-")===0)return "users-admin";if(currentScene==="front")return "templates";if(currentScene.indexOf("err-")===0)return "";return "templates-admin";}
+
+/* ============================================================
+   视图：模板管理
+   ============================================================ */
+function viewTemplates(mode){
+  const last = mode==="last", empty = mode==="empty";
+  const enabledCount = last?1:3, renderable = last?1:3;
+  let html = topTitle("模板管理","管理展示信息、启停与前台排序 · 渲染契约由代码发版维护，此处不可修改");
+  html += '<div class="stat-row">'
+    + '<div class="stat"><div class="k">模板总数</div><div class="v">6 <small>条</small></div></div>'
+    + '<div class="stat"><div class="k">启用中</div><div class="v">'+enabledCount+' <small>条</small></div></div>'
+    + '<div class="stat accent" data-anno="B3：可用模板数 = enabled ∧ 注册表命中，恒 ≥ 1"><div class="k">可渲染启用</div><div class="v">'+renderable+' <small>条 · 计入守卫</small></div></div>'
+    + '<div class="stat"><div class="k">注册缺失</div><div class="v">1 <small>条 · 同步时自动停用</small></div></div>'
+    + '</div>';
+  html += '<div class="boundary '+(last?'danger':'')+'" data-anno="FR-05 / FR-08：守卫与一致性提示常驻">'
+    + '<div><b>'+(last?'仅剩 1 套可渲染启用模板，停用操作将被拦截':'检测到注册表有 1 项新增待同步')+'</b>'
+    + '<span>'+(last?'服务器返回 409 TEMPLATE_LAST_ENABLED，需先启用其他模板。请先确认未同步的注册项。':'同步不会覆盖已编辑元数据；注册缺失且 enabled=true 的行会自动停用并写审计。')+'</span></div>'
+    + '<button class="btn btn-ghost btn-sm" data-action="sync">↻ 从注册表同步</button></div>';
+  if(last){
+    html += '<div class="error-banner" data-anno="409 明确文案 + 保留用户上下文"><div><b>无法停用：这是最后一套可渲染的启用模板</b>'
+      + '<div>停用后全站将无法创作。请先启用其他模板，或检查未同步的注册项。<code>TEMPLATE_LAST_ENABLED · 409</code></div></div>'
+      + '<button class="icon-btn" aria-label="关闭提示" data-action="dismiss">×</button></div>';
+  }
+  html += '<div class="filter-bar">'
+    + '<input type="search" placeholder="搜索展示名称或内部 ID…" aria-label="搜索模板">'
+    + '<select aria-label="按分类筛选"><option>全部分类</option><option>新品发布 launch</option><option>亮点展示 highlight</option><option>限时促销 sale</option><option>场景展示 showcase</option></select>'
+    + '<select aria-label="按启用状态筛选"><option>全部状态</option><option>启用</option><option>停用</option><option>注册缺失</option></select>'
+    + '<button class="btn btn-ghost btn-sm" data-action="sort">↕ 批量排序</button>'
+    + '<span class="spacer"></span><span class="muted">'+(empty?'0':'6')+' 条结果</span></div>';
+  if(empty){
+    html += '<div class="empty-state" data-anno="空态必须给出下一步动作"><div class="em-ico">▤</div><p>没有符合条件的模板。试试调整筛选条件，或从注册表同步新模板。</p>'
+      + '<button class="btn btn-primary" data-action="sync">从注册表同步</button></div>';
+  }else{
+    html += '<div class="table-wrap"><table class="data-table"><thead><tr>'
+      + '<th scope="col">模板</th><th scope="col">缩略图</th><th scope="col">分类</th><th scope="col">时长</th><th scope="col">排序</th>'
+      + '<th scope="col">启用状态</th><th scope="col">注册状态</th><th scope="col">操作</th></tr></thead><tbody>';
+    const rows = last ? TEMPLATES.map(function(t){return Object.assign({},t,{enabled:t.id==="t1"});}) : TEMPLATES;
+    rows.forEach(function(t){
+      const disableBlocked = last && t.enabled;
+      const enableBlocked = !t.registered;
+      html += '<tr'+(t.registered?'':' class="reg-missing-row"')+'>'
+        + '<td class="main-cell"><b>'+esc(t.name)+'</b><span class="sub">'+esc(t.cid)+'</span></td>'
+        + '<td><div class="thumb '+(t.thumb==='none'?'none':t.thumb)+'">'+(t.thumb==='none'?'CSS 示意':'')+'</div></td>'
+        + '<td><span class="chip">'+t.catLabel+'</span></td>'
+        + '<td class="tabular">'+t.duration+'s <span class="muted" style="font-size:.62rem">(只读镜像)</span></td>'
+        + '<td class="tabular">'+t.sort+'</td>'
+        + '<td><span class="badge '+(t.enabled?'ok':'neutral')+'">'+(t.enabled?'启用':'停用')+'</span></td>'
+        + '<td>'+(t.registered?'<span class="reg-ok">✓ 已注册</span>':'<span class="reg-bad" title="禁止启用，同步时自动停用">⚠ 注册缺失</span>')+'</td>'
+        + '<td><div class="row-ops">'
+        + '<button class="link-btn" data-action="edit" data-id="'+t.id+'">编辑</button>'
+        + '<button class="link-btn" data-action="'+(t.enabled?'disable':'enable')+'" data-id="'+t.id+'" '+(disableBlocked?'disabled title="最后一套可渲染模板不可停用"':(enableBlocked?'disabled title="注册缺失，禁止启用"':''))+'>'+(t.enabled?'停用':'启用')+'</button>'
+        + '<button class="icon-btn sm" data-action="thumb" data-id="'+t.id+'" aria-label="上传缩略图 '+esc(t.name)+'" title="上传缩略图">▧</button>'
+        + '<button class="icon-btn sm" data-action="tpl-audit" data-id="'+t.id+'" aria-label="查看审计 '+esc(t.name)+'" title="查看审计">◷</button>'
+        + '</div></td></tr>';
+    });
+    html += '</tbody></table></div><div class="table-foot"><span>共 6 条 · 每页 10 条</span><span>‹ 1 ›</span></div>';
+  }
+  return html;
+}
+
+/* ============================================================
+   视图：成员与角色
+   ============================================================ */
+function viewUsers(tab){
+  let html = topTitle("成员与角色","只读列出最小字段，仅用于选择角色变更目标 · 不提供用户新建 / 删除 / 停用");
+  html += '<div class="boundary" data-anno="常驻风险提示：管理员数 + 双人复核 + 冻结条件"><div><b>当前管理员 2 名（主 / 备） · 提权需另一名管理员复核</b>'
+    + '<span>少于 2 名时「申请设为管理员」入口冻结，需通过运维脚本 bootstrap 备用账号；撤销后下一次请求即失效。</span></div>'
+    + '<button class="link-btn" data-action="go-audit">查看变更记录 →</button></div>';
+  html += '<div class="tabs" role="tablist" aria-label="成员与角色分区">'
+    + '<button class="tab" role="tab" data-tab="list" aria-selected="'+(tab==="list")+'">成员列表 <span class="count">5</span></button>'
+    + '<button class="tab" role="tab" data-tab="review" aria-selected="'+(tab==="review")+'">待复核 <span class="count hot">2</span><i class="dot" aria-label="有待办"></i></button>'
+    + '<button class="tab" role="tab" data-tab="audit" aria-selected="'+(tab==="audit")+'">角色变更记录</button></div>';
+  if(tab==="list"){
+    html += '<div class="filter-bar"><input type="search" placeholder="输入完整邮箱精确匹配…" aria-label="精确搜索成员邮箱">'
+      + '<span class="muted" data-anno="Q6：精确匹配 + 10 次/分限流，不做模糊枚举">仅精确匹配 · 10 次/分限流 · 查询写结构化告警日志</span>'
+      + '<span class="spacer"></span><select aria-label="按角色筛选"><option>全部角色</option><option>管理员</option><option>普通用户</option></select></div>';
+    html += '<div class="table-wrap"><table class="data-table"><thead><tr><th scope="col">账号邮箱</th><th scope="col">角色</th><th scope="col">注册时间</th><th scope="col">操作</th></tr></thead><tbody>';
+    USERS.forEach(function(u){
+      let ops = "";
+      if(u.self) ops = '<span class="muted">当前账号 · 不可改自己</span>';
+      else if(u.role==="admin") ops = '<button class="link-btn" data-action="revoke" data-id="'+u.id+'" style="color:var(--error-fg)">撤销管理员</button>';
+      else ops = '<button class="link-btn" data-action="request" data-id="'+u.id+'">申请设为管理员</button>';
+      html += '<tr><td><b>'+esc(u.email)+'</b></td><td><span class="badge '+(u.role==="admin"?'ok':'neutral')+'">'+(u.role==="admin"?'管理员':'普通用户')+'</span></td>'
+        + '<td class="tabular muted">'+u.created+'</td><td><div class="row-ops">'+ops+'</div></td></tr>';
+    });
+    html += '</tbody></table></div><div class="table-foot"><span>共 5 条 · 不提供成员数据导出</span><span>‹ 1 ›</span></div>';
+  }else if(tab==="review"){
+    html += '<div class="boundary" data-anno="S3：待复核 Tab + 顶部红点，不做推送/邮件"><div><b>有 2 条待你复核的申请 · 24 小时内有效</b>'
+      + '<span>发起人不可批准自己的申请；过期单在列表读取时置为 expired，不可批准。</span></div></div>';
+    REQUESTS.forEach(function(r){
+      const mine = r.status==="mine", expired = r.status==="expired";
+      html += '<div class="review-card '+(mine?'mine':'')+' '+(expired?'expired':'')+'">'
+        + '<div class="review-head"><div><b>'+esc(r.target)+'</b> <span class="badge '+(expired?'neutral':(mine?'neutral':'wait'))+'">'+(expired?'已过期':(mine?'我发起的':'待复核'))+'</span></div>'
+        + '<span class="muted">剩余 '+r.left+'</span></div>'
+        + '<div class="review-meta"><div><span>目标角色</span>普通用户 → <b>管理员</b></div><div><span>发起人</span>'+esc(r.by)+'</div>'
+        + '<div><span>申请原因</span>'+esc(r.reason)+'</div></div>'
+        + '<div class="row-ops">'
+        + (mine?'<button class="link-btn" data-action="cancel-req">撤回申请</button>'
+           :(expired?'<span class="muted">不可批准 · 请重新发起</span>'
+           :'<button class="btn btn-primary btn-sm" data-action="approve" data-id="'+r.id+'">批准</button><button class="btn btn-ghost btn-sm" data-action="reject" data-id="'+r.id+'">驳回</button>'))
+        + '</div></div>';
+    });
+  }else{
+    html += '<div class="table-wrap"><table class="data-table"><thead><tr><th scope="col">时间</th><th scope="col">目标账号</th><th scope="col">角色变更</th><th scope="col">操作人 / 来源</th><th scope="col">原因 / 工单</th></tr></thead><tbody>';
+    ROLE_AUDITS.forEach(function(a){
+      html += '<tr><td class="tabular">'+a.time+'</td><td>'+esc(a.target)+'</td><td><span class="badge neutral">'+a.from+'</span> → <span class="badge ok">'+a.to+'</span></td>'
+        + '<td>'+esc(a.actor)+' <span class="chip">'+a.source+'</span></td><td>'+esc(a.reason)+'</td></tr>';
+    });
+    html += '<tr><td class="tabular">2026-11-26 15:20</td><td>wang.min@productvideo.cn</td><td><span class="badge ok">admin</span> → <span class="badge neutral">user</span></td>'
+      + '<td>admin@productvideo.cn <span class="chip">web</span></td><td>岗位调整回收 · req-8f2a…</td></tr>';
+    html += '<tr><td class="tabular">2026-11-27 11:05</td><td>li.wei@productvideo.cn</td><td><span class="badge neutral">user</span> → <span class="badge ok">admin</span></td>'
+      + '<td>backup.admin@productvideo.cn <span class="chip">web</span></td><td>接手模板运营 · req-3c91…</td></tr>';
+    html += '</tbody></table></div><div class="table-foot"><span>source=web / script 全量留痕 · 审计只记 UUID 与 requestId，不记邮箱明文到日志</span></div>';
+  }
+  return html;
+}
+
+/* ============================================================
+   视图：异常态 / 前台影响
+   ============================================================ */
+function viewStatePage(kind){
+  if(kind==="err-403") return '<div class="state-page"><div class="state-card"><div class="em-ico">🔒</div><h1>无访问权限</h1>'
+    + '<p>你的当前角色为「普通用户」，无权访问管理后台。<br>如需权限，请联系管理员在「成员与角色 → 申请设为管理员」中发起提权申请，由另一名管理员复核。</p>'
+    + '<button class="btn btn-primary" data-action="back">返回工作台</button></div></div>';
+  if(kind==="err-401") return '<div class="state-page"><div class="state-card"><div class="em-ico">◌</div><h1>账号未初始化</h1>'
+    + '<p>登录凭证有效，但系统中没有对应的用户记录，无法判定角色。<br>请联系管理员完成账号初始化后再访问管理后台。（401 UNAUTHORIZED）</p>'
+    + '<button class="btn btn-primary" data-action="back">返回登录</button></div></div>';
+  return '<div class="state-page"><div class="state-card"><div class="em-ico">⛔</div><h1>无法撤销最后一名管理员</h1>'
+    + '<p>撤销后全站管理员数将为 0，后台将被锁死。<br>请先通过页面复核或运维脚本任命另一名管理员。（409 ROLE_LAST_ADMIN）</p>'
+    + '<button class="btn btn-primary" data-action="back">返回成员列表</button></div></div>';
+}
+
+function viewFront(){
+  let h = topTitle("停用后的前台表现","实际页面含右侧常驻预览与卡片悬停预览；停用模板不出现在前台，历史任务口径不变");
+  h += '<div class="boundary"><div><b>模板「限时促销 · 倒计时」已停用</b>'
+    + '<span>前台卡片与预览面板均不再出现该模板；历史任务仍可播放/下载；已付费失败任务仍可重试。</span></div></div>';
+  h += '<div class="front-heading"><h2>模板选择页（对齐线上 /templates）</h2><span class="muted">4 套 · 均已启用</span></div>';
+  h += '<div class="tpl-layout" data-anno="实际基线：左卡片网格 + 右常驻预览面板">';
+  h += '<div class="tpl-left">';
+  h += '<div class="pick-grid">';
+  const cards = [
+    {en:"Product Highlight",zh:"亮点介绍",desc:"无痛点·字幕",sec:20,cta:"LEARN MORE",tone:"tone-hl",sel:true},
+    {en:"Product Launch",zh:"新品展示",desc:"主视觉·纯标题",sec:15,cta:"DISCOVER MORE",tone:"tone-launch"},
+    {en:"Summer Sale 30%",zh:"促销活动",desc:"原价/P1/CTA",sec:15,cta:"SHOP NOW",tone:"tone-sale"},
+    {en:"Premium Showcase",zh:"高级品牌展示",desc:"品牌感·优雅转场",sec:20,cta:"THE COLLECTION",tone:"tone-premium"}
+  ];
+  cards.forEach(function(c){
+    h += '<div class="pick-card'+(c.sel?' selected':'')+'"><div class="visual '+c.tone+'">'
+      + '<span class="sec">'+c.sec+' 秒</span><b>'+esc(c.en)+'</b><span class="cta">'+esc(c.cta)+'</span></div>'
+      + '<div class="meta"><b>'+esc(c.zh)+'</b><span>'+esc(c.desc)+'</span></div></div>';
+  });
+  h += '</div>';
+  h += '<p class="muted" style="font-size:.72rem;margin:0">按 sortOrder 升序展示 · 内部 compositionId 永不直接展示</p>';
+  h += '<div class="anno-spec" aria-label="预览交互设计决策（评审标注）">'
+    + '<h3>◈ 预览交互 · 设计决策（仅「设计标注」开启时可见，非产品文案）</h3><ul>'
+    + '<li>悬停卡片 200ms 后，卡面叠加静音循环预览；叠加层不接收指针事件，点击仍落在卡片上。</li>'
+    + '<li>点击选中后右侧面板跟随切换；播放器以 compositionId 为 key 重挂载，不沿用上一个模板的进度。</li>'
+    + '<li>选中卡只在右侧播一份，卡面叠加层立即撤掉，避免同一模板在两处同时播放。</li>'
+    + '<li>面板不接管空格键：方向键切卡后焦点留在卡片上；系统「减少动效」时不自动播放。</li>'
+    + '<li>实时预览使用演示数据，成片以你的商品与文案为准。</li>'
+    + '</ul></div></div>';
+  h += '<aside class="tpl-panel" aria-label="模板预览"><div class="tpl-panel-head"><b>模板预览</b><span>亮点介绍 · 20 秒 · 9:16</span></div>'
+    + '<div class="player" data-anno="播放器默认不自动播放；不接管空格键，避免抢走卡片焦点">'
+    + '<div class="player-progress"><i></i></div><div class="player-play" aria-hidden="true">▶</div>'
+    + '<div class="player-ctl"><span>▶</span><span class="time">0:00 / 0:20</span><span>⛶</span></div></div>'
+    + '<p class="preview-cap">实时预览 · 演示数据，成片以你的商品与文案为准</p>'
+    + '<button class="btn btn-primary" data-action="noop">使用所选模板创作 →</button></aside></div>';
+  h += '<div class="page-divider" data-anno="刻意分隔：上下两块为两个不同页面（模板选择页 / 视频管理页），不是同一长页面"><span>↓ 以下为另一页面 · 视频管理页</span></div>';
+  h += '<div class="front-heading"><h2>视频管理页（历史任务）</h2><span class="muted">口径拆分：retry 不受停用影响；regenerate 受 enabled 守卫</span></div><div class="vlist">';
+  h += '<div class="vrow"><div class="mini g1"></div><div><b>秋季新品发布 · 01</b><span>已完成 · 使用「新品发布 · 竖版」</span></div><div class="ops"><span class="badge ok">已完成</span><button class="link-btn" data-action="noop">播放</button></div></div>';
+  h += '<div class="vrow"><div class="mini g3"></div><div><b>限时促销 · 03</b><span>失败 · 模板已停用，快照自包含</span></div><div class="ops"><span class="badge fail">失败</span><button class="btn btn-primary btn-sm" data-action="retry-ok">重试</button></div></div>';
+  h += '<div class="vrow"><div class="mini g3"></div><div><b>限时促销 · 02</b><span>已完成 · 模板已停用</span></div><div class="ops"><span class="badge ok">已完成</span><button class="btn btn-ghost btn-sm" disabled title="模板已停用，请改用其他模板">重新生成</button></div></div>';
+  h += '</div><p class="muted" style="margin-top:10px" data-anno="FR-12 / TC-04a·04b">retry 可用；regenerate 禁用并提示「模板已停用，请改用其他模板」。</p>';
+  return h;
+}
+
+/* ============================================================
+   弹窗
+   ============================================================ */
+function modalShell(title,lede,body,actions,wide){
+  return '<div class="modal-mask" data-action="mask"><div class="modal '+(wide?'wide':'')+'" role="dialog" aria-modal="true" aria-labelledby="dialogTitle" tabindex="-1">'
+    + '<h2 id="dialogTitle" tabindex="-1">'+title+'</h2><p class="lede">'+lede+'</p>'+body
+    + '<div class="modal-actions">'+actions+'</div></div></div>';
+}
+function modalEdit(){
+  const t = TEMPLATES[0];
+  const body = '<div class="form-section"><h3>运营元数据 <span class="tag">可编辑 · 保存后立即生效（审计留痕）</span></h3><div class="form-grid">'
+    + '<div class="field"><label for="f-name">展示名称（中文）*</label><input id="f-name" maxlength="120" value="'+esc(t.name)+'"><span class="hint">≤120 字 · 前台卡片主标题</span></div>'
+    + '<div class="field"><label for="f-en">展示名称（英文）</label><input id="f-en" maxlength="120" value="'+esc(t.english)+'"><span class="hint">≤120 字</span></div>'
+    + '<div class="field full"><label for="f-desc">模板描述</label><textarea id="f-desc" maxlength="300" rows="3">'+esc(t.desc)+'</textarea><span class="hint">≤300 字</span></div>'
+    + '<div class="field"><label for="f-cta">行动按钮文案 CTA</label><input id="f-cta" maxlength="60" value="'+esc(t.cta)+'"><span class="hint">≤60 字</span></div>'
+    + '<div class="field"><label for="f-tone">tone 枚举</label><select id="f-tone"><option selected>energetic</option><option>calm</option><option>premium</option><option>playful</option><option>urgent</option></select><span class="hint">固定枚举，不接受自由输入</span></div>'
+    + '<div class="field"><label for="f-sort">排序值 sortOrder</label><input id="f-sort" type="number" min="0" max="999" value="'+t.sort+'"><span class="hint">0~999，升序；相同值按 composition_id 兜底</span></div>'
+    + '</div></div>'
+    + '<div class="form-section" data-anno="硬约束：禁止手填 compositionId / 上传 Remotion 代码"><h3>渲染契约 <span class="tag ro">只读 · 代码发版维护</span></h3><div class="readonly-grid">'
+    + '<div><span>compositionId</span><code>'+esc(t.cid)+'</code></div><div><span>时长 durationSec</span><code>'+t.duration+' 秒</code></div>'
+    + '<div><span>规格</span><code>1080×1920 / 30fps</code></div><div><span>config / defaultProps</span><code>代码层单一真源</code></div>'
+    + '</div><p class="hint" style="margin-top:10px">修改这些字段需要改代码并发版；管理端不提供入口。右侧实时预览使用注册表演示数据，编辑运营元数据不会改变预览画面。</p></div>'
+    + '<div class="modal-note">version '+t.version+' · 采用乐观锁。若他人已修改，保存将返回 409 TEMPLATE_CONFLICT 并提示刷新。</div>';
+  return modalShell("编辑模板 · "+esc(t.name),"标 * 为必填；所有修改记录 before/after 审计，与主操作同事务。",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-primary" data-action="saved">保存更改</button>',true);
+}
+function modalDisable(){
+  const body = '<div class="warn-box" data-anno="FR-12：停用影响面必须说清，避免用户误解 retry"><b>停用后的行为</b><ul>'
+    + '<li>前台不再展示；新提交与 <b>regenerate</b> 会被服务端拒绝</li>'
+    + '<li>已提交任务（pending / processing / completed）<b>不受影响</b></li>'
+    + '<li>已付费失败任务的 <b>retry 仍可重试</b>（不回查模板）</li>'
+    + '<li>历史任务不回读模板元数据，不会「变脸」</li></ul></div>'
+    + '<div class="field"><label for="f-reason">停用原因（选填）</label><textarea id="f-reason" rows="3" placeholder="例如：活动结束，暂时下架"></textarea><span class="hint">写入 template_audit_logs.reason，便于后续复盘</span></div>';
+  return modalShell("停用模板 · 新品发布 · 竖版","停用后仍可重新启用；系统保留历史任务外键引用，不提供删除。",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-danger" data-action="disabled-ok">确认停用</button>');
+}
+function modalThumb(){
+  const body = '<div class="dropzone"><div><b>点击选择或拖拽图片到此处</b>支持 PNG / JPG / WEBP · ≤10MB<br>服务端校验扩展名 + MIME + magic sniff；SVG 一律拒绝</div></div>'
+    + '<div class="upload-preview"><div class="thumb g1"></div><div><b style="font-size:.8rem">当前卡片静帧</b><br><span class="muted">替换后卡片 60s 内生效；悬停静音预览与右侧播放器仍走代码注册表，不受此图影响</span></div></div>'
+    + '<div class="field" style="margin-top:14px"><span class="hint">存储路径受控：thumbnails/{templateId}/{uuid}.{ext}，读取走鉴权接口，不静态暴露目录。</span></div>';
+  return modalShell("上传缩略图 · 新品发布 · 竖版","卡片静帧封面；实时视频预览由注册表 Composition 提供，二者互不替代。",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-primary" data-action="upload-ok">确认上传</button>');
+}
+function modalSync(){
+  const body = '<div class="result-grid"><div><b>1</b><span>新增</span></div><div><b>4</b><span>跳过</span></div><div><b>1</b><span>自动停用</span></div><div><b>0</b><span>异常</span></div></div>'
+    + '<div class="audit-list">'
+    + '<div class="audit-item"><div class="t">新增 · 默认停用</div><div class="a">double11-special → 双十一特别版（待配置）</div><div class="d">元数据待补全，前台不展示；补全后可启用。</div></div>'
+    + '<div class="audit-item"><div class="t">自动停用 · 写审计</div><div class="a">legacy-launch · 注册缺失</div><div class="d">action = auto_disabled_registry_missing · 原 enabled=true → false</div></div>'
+    + '<div class="audit-item"><div class="t">跳过 · 不覆盖</div><div class="a">product-launch / product-highlight / season-sale / brand-showcase</div><div class="d">已编辑元数据保持不变；durationSec 以注册表为准回填。</div></div>'
+    + '</div>';
+  return modalShell("注册表同步完成","同步只新增缺失行，不覆盖已编辑元数据；注册缺失的启用行自动停用并写审计。",body,
+    '<button class="btn btn-primary" data-action="close">知道了</button>',true);
+}
+function modalTplAudit(){
+  let body = '<div class="audit-list">';
+  TEMPLATE_AUDITS.forEach(function(a){
+    body += '<div class="audit-item"><div class="t">'+a.time+' · '+esc(a.actor)+'</div><div class="a">'+esc(a.action)+' · '+esc(a.reason)+'</div>'
+      + '<div class="d"><span class="diff-del">− '+esc(a.before)+'</span><br><span class="diff-add">+ '+esc(a.after)+'</span></div></div>';
+  });
+  body += '</div><p class="muted" style="margin-top:16px">审计与主操作同一事务，写失败整笔回滚并返回 500。</p>';
+  return modalShell("操作审计 · 新品发布 · 竖版","按时间倒序；before/after 可视化，actor 显示为邮箱仅管理员可见。",body,
+    '<button class="btn btn-ghost" data-action="close">关闭</button>',true);
+}
+function modalSort(){
+  let body = '<p class="muted" style="margin-bottom:12px">分类为固定 4 类代码枚举，不支持运营自定义；拖拽或输入调整 sortOrder。</p><div class="table-wrap"><table class="data-table" style="min-width:520px"><thead><tr><th scope="col">分类</th><th scope="col">模板</th><th scope="col">排序值</th></tr></thead><tbody>';
+  TEMPLATES.slice(0,4).forEach(function(t){body += '<tr><td><span class="chip">'+t.catLabel+'</span></td><td>'+esc(t.name)+'</td><td><input type="number" min="0" max="999" value="'+t.sort+'" style="width:90px;min-height:44px;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface);color:var(--ink);padding:0 8px"></td></tr>';});
+  body += '</tbody></table></div>';
+  return modalShell("批量调整排序","排序值 0~999，升序；相同值按 composition_id 字典序兜底。",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-primary" data-action="saved">保存排序</button>',true);
+}
+function modalRequest(){
+  const body = '<div class="form-section"><div class="field"><label>目标账号（只读）</label><input value="li.wei@productvideo.cn" disabled></div>'
+    + '<div class="field" style="margin-top:14px"><label>角色变更</label><div style="display:flex;align-items:center;gap:10px"><span class="badge neutral">user · 普通用户</span>→ <span class="badge ok">admin · 管理员</span></div></div>'
+    + '<div class="field" style="margin-top:16px"><label for="f-req-reason">申请原因 *</label><textarea id="f-req-reason" rows="4" placeholder="请说明为何需要管理后台权限"></textarea><span class="hint">必填，写入审计与复核单；24 小时内有效</span></div></div>'
+    + '<div class="modal-note">提交后由<b>另一名</b>管理员在「待复核」中批准；你不能批准自己的申请。当前管理员 2 名，提权入口已解锁。</div>';
+  return modalShell("申请设为管理员","双人复核流程第 1 步：发起申请。",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-primary" data-action="request-ok">提交申请</button>');
+}
+function modalRevoke(){
+  const body = '<div class="warn-box"><b>撤销后的影响</b><ul><li>该账号下一次请求即失去管理端访问权限，无需重新登录</li><li>不能撤销自己；撤销后管理员数必须 ≥ 1</li><li>角色审计与角色更新同事务，写失败整笔回滚</li></ul></div>'
+    + '<div class="field"><label for="f-revoke-reason">撤销原因 *</label><textarea id="f-revoke-reason" rows="3" placeholder="例如：岗位调整，权限回收"></textarea></div>'
+    + '<div class="field confirm-input"><label for="f-revoke-email">二次确认：输入目标邮箱</label><input id="f-revoke-email" placeholder="backup.admin@productvideo.cn"><span class="hint">输入不一致时按钮保持禁用</span></div>';
+  return modalShell("撤销管理员 · backup.admin@productvideo.cn","二次确认只是体验层，服务端独立校验全部守卫。",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-danger" data-action="revoke-ok" disabled>确认撤销</button>');
+}
+function modalApprove(){
+  const body = '<div class="form-section"><div class="review-meta"><div><span>目标账号</span><b>li.wei@productvideo.cn</b></div><div><span>发起人</span>backup.admin@productvideo.cn</div>'
+    + '<div><span>申请原因</span>接手模板运营工作，需要管理后台权限。</div><div><span>剩余时间</span>18 小时</div></div></div>'
+    + '<div class="warn-box"><b>批准即生效</b><ul><li>服务端重新校验：审批人 ≠ 发起人、目标仍为 user、申请未过期</li><li>条件更新 updateMany 断言 count===1，防止并发双写</li><li>角色变更 + 审计 + 关单在同一事务内完成</li></ul></div>';
+  return modalShell("复核提权申请","你是审批人（admin A），发起人是另一名管理员（admin B）。",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-ghost" data-action="reject">驳回</button><button class="btn btn-primary" data-action="approve-ok">批准</button>');
+}
+function modalReject(){
+  const body = '<div class="field"><label for="f-reject-reason">驳回理由 *</label><textarea id="f-reject-reason" rows="4" placeholder="请说明驳回原因"></textarea><span class="hint">写入 review_reason，发起人可见</span></div>';
+  return modalShell("驳回提权申请","目标：li.wei@productvideo.cn",body,
+    '<button class="btn btn-ghost" data-action="close">取消</button><button class="btn btn-danger" data-action="reject-ok">确认驳回</button>');
+}
+
+const MODALS = {
+  "tpl-edit":modalEdit,"tpl-disable":modalDisable,"tpl-thumb":modalThumb,"tpl-sync":modalSync,"tpl-audit":modalTplAudit,"tpl-sort":modalSort,
+  "usr-request":modalRequest,"usr-revoke":modalRevoke,"usr-approve":modalApprove,"reject":modalReject
+};
+
+/* ============================================================
+   渲染 / 交互调度
+   ============================================================ */
+function render(){
+  const main = document.getElementById("mainContent");
+  if(currentScene==="tpl-normal"||currentScene==="tpl-last"||currentScene==="tpl-empty") main.innerHTML = viewTemplates(currentScene.split("-")[1]);
+  else if(currentScene==="usr-list"||currentScene==="usr-review"||currentScene==="usr-audit") main.innerHTML = viewUsers(currentScene.split("-")[1]);
+  else if(currentScene.indexOf("err-")===0) main.innerHTML = viewStatePage(currentScene);
+  else if(currentScene==="front") main.innerHTML = viewFront();
+  else main.innerHTML = viewTemplates("normal");
+  document.querySelectorAll("[data-nav]").forEach(function(el){el.classList.toggle("active",el.dataset.nav===activeNav());});
+}
+function openModal(key){
+  lastFocused = document.activeElement;
+  document.getElementById("modalRoot").innerHTML = MODALS[key]();
+  const dlg = document.querySelector('.modal [tabindex="-1"]');
+  if(dlg) dlg.focus();
+}
+function closeModal(skipSync){
+  document.getElementById("modalRoot").innerHTML="";
+  if(lastFocused && document.contains(lastFocused))lastFocused.focus();
+  if(!skipSync && MODALS[activeSceneKey]){
+    activeSceneKey = currentScene;
+    document.getElementById("sceneSelect").value = activeSceneKey;
+    document.getElementById("sceneNote").textContent = SCENES[activeSceneKey]?SCENES[activeSceneKey].note:"";
+  }
+}
+function toast(msg,isError){
+  const el = document.createElement("div");
+  el.className = "toast"+(isError?" error":"");
+  el.textContent = msg;
+  document.getElementById("toastRoot").appendChild(el);
+  setTimeout(function(){el.remove();},3600);
+}
+function switchScene(key,skipHash){
+  closeModal(true);
+  activeSceneKey = key;
+  currentScene = MODALS[key] ? (key.indexOf("usr-")===0?"usr-list":"tpl-normal") : key;
+  document.getElementById("sceneSelect").value = key;
+  document.getElementById("sceneNote").textContent = SCENES[key]?SCENES[key].note:"";
+  render();
+  if(MODALS[key]) openModal(key);
+  try{history.replaceState(null,"","#"+key);}catch(e){}
+  window.scrollTo({top:0,behavior:"auto"});
+}
+
+function bind(){
+  const sel = document.getElementById("sceneSelect");
+  let html = "", lastGroup = "";
+  Object.keys(SCENES).forEach(function(k){
+    if(SCENES[k].group!==lastGroup){if(lastGroup)html+="</optgroup>";lastGroup=SCENES[k].group;html+='<optgroup label="'+lastGroup+'">';}
+    html += '<option value="'+k+'">'+SCENES[k].label+'</option>';
+  });
+  html += "</optgroup>";
+  sel.innerHTML = html;
+  sel.value = currentScene;
+  sel.addEventListener("change",function(){switchScene(this.value);});
+
+  document.getElementById("annoToggle").addEventListener("click",function(){
+    const on = document.body.classList.toggle("anno-on");
+    this.setAttribute("aria-pressed",String(on));
+  });
+  document.getElementById("themeToggle").addEventListener("click",function(){
+    const root = document.documentElement;
+    const dark = root.getAttribute("data-theme")!=="dark";
+    root.setAttribute("data-theme",dark?"dark":"light");
+    this.setAttribute("aria-pressed",String(dark));
+    this.textContent = dark?"◑ 浅色":"◐ 暗色";
+  });
+
+  document.addEventListener("click",function(e){
+    const tab = e.target.closest("[data-tab]");
+    if(tab){currentTab = tab.dataset.tab;switchScene("usr-"+currentTab);return;}
+    const nav = e.target.closest("[data-nav]");
+    if(nav){e.preventDefault();if(nav.dataset.nav==="users-admin")switchScene("usr-list");else if(nav.dataset.nav==="templates-admin")switchScene("tpl-normal");else if(nav.dataset.nav==="templates")switchScene("front");else switchScene("err-403");return;}
+    const el = e.target.closest("[data-action]");
+    if(!el)return;
+    const a = el.dataset.action;
+    switch(a){
+      case "mask": if(e.target===el)closeModal();break;
+      case "close": closeModal();break;
+      case "theme": document.getElementById("themeToggle").click();break;
+      case "logout": switchScene("err-401");break;
+      case "back": switchScene("usr-list");break;
+      case "dismiss": el.closest(".error-banner").remove();break;
+      case "edit": openModal("tpl-edit");break;
+      case "disable": openModal("tpl-disable");break;
+      case "thumb": openModal("tpl-thumb");break;
+      case "sync": openModal("tpl-sync");break;
+      case "tpl-audit": openModal("tpl-audit");break;
+      case "sort": openModal("tpl-sort");break;
+      case "request": openModal("usr-request");break;
+      case "revoke": openModal("usr-revoke");break;
+      case "approve": openModal("usr-approve");break;
+      case "reject": openModal("reject");break;
+      case "go-audit": switchScene("usr-audit");break;
+      case "cancel-req": toast("已撤回申请（Should 级能力）");break;
+      case "saved": closeModal();toast("保存成功 · 前台 60s 内生效，已写入审计");break;
+      case "disabled-ok": closeModal();toast("模板已停用 · 已失效前台缓存；retry 不受影响");break;
+      case "upload-ok": closeModal();toast("缩略图上传成功");break;
+      case "request-ok": closeModal();toast("提权申请已提交 · 等待另一名管理员复核");break;
+      case "revoke-ok": closeModal();toast("已撤销管理员权限 · 角色审计已记录");break;
+      case "approve-ok": closeModal();toast("批准成功 · C 已成为管理员，审计恰好 1 条");break;
+      case "reject-ok": closeModal();toast("已驳回申请");break;
+      case "retry-ok": toast("重试成功 · 任务已回到 pending（不受模板停用影响）");break;
+      case "noop": toast("历史任务使用快照，不回读模板元数据");break;
+    }
+  });
+
+  document.addEventListener("input",function(e){
+    if(e.target.id==="f-revoke-email"){
+      const ok = e.target.value.trim()==="backup.admin@productvideo.cn";
+      const btn = document.querySelector('[data-action="revoke-ok"]');
+      if(btn)btn.disabled = !ok;
+    }
+  });
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"&&document.getElementById("modalRoot").innerHTML)closeModal();
+    if(e.key==="Tab"&&document.getElementById("modalRoot").innerHTML){
+      const f = Array.from(document.querySelectorAll('.modal button,.modal input,.modal textarea,.modal select')).filter(function(x){return !x.disabled;});
+      if(!f.length)return;
+      const first=f[0],last=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+    }
+  });
+}
+
+bind();
+(function(){
+  if(new URLSearchParams(location.search).get("dark")==="1"){
+    document.documentElement.setAttribute("data-theme","dark");
+    const tt=document.getElementById("themeToggle");
+    tt.setAttribute("aria-pressed","true");tt.textContent="◑ 浅色";
+  }
+  const hk = decodeURIComponent(location.hash.slice(1));
+  if(hk && SCENES[hk]) switchScene(hk,true);
+  else if(hk && MODALS[hk]) switchScene(hk,true);
+  else {render();document.getElementById("sceneNote").textContent=SCENES[currentScene].note;}
+})();
+window.addEventListener("hashchange",function(){
+  const hk = decodeURIComponent(location.hash.slice(1));
+  if(hk && SCENES[hk] && hk!==activeSceneKey) switchScene(hk,true);
+});
+</script>
+</body>
+</html>

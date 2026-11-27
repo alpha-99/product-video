@@ -78,7 +78,7 @@
   --fs-lg: 1.5rem;
   --fs-xl: 2.3rem;
 
-  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px;
   --sp-8: 32px; --sp-10: 40px; --sp-12: 48px; --sp-16: 64px;
 
   --r-sm: 8px; --r-md: 12px; --r-lg: 18px; --r-xl: 26px;
@@ -225,7 +225,7 @@ h1, h2, h3, h4 { font-weight: 600; }
 .btn-danger { background: var(--error-solid); color: oklch(100% 0 0); }
 .btn-danger:hover { filter: brightness(1.1); }
 
-.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .field label { font-size: .8rem; font-weight: 600; }
 .field input, .field textarea, .field select {
   min-height: 44px; padding: 10px 14px; border: 1px solid var(--line-strong);
@@ -239,7 +239,7 @@ h1, h2, h3, h4 { font-weight: 600; }
 }
 .field input::placeholder { color: var(--ink-3); }
 .field input.invalid { border-color: var(--error-fg); }
-.field .hint { font-size: .72rem; color: var(--ink-3); }
+.field .hint { font-size: .72rem; line-height: 1.4; color: var(--ink-3); }
 .field .hint.err { color: var(--error-fg); font-weight: 600; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-4); }
 .field-mb { margin-bottom: var(--sp-5); }
@@ -339,6 +339,31 @@ h1, h2, h3, h4 { font-weight: 600; }
 .tpl-body { padding: 12px 14px; }
 .tpl-body b { font-size: .82rem; display: block; }
 .tpl-body span { font-size: .68rem; color: var(--ink-3); }
+
+/* 模板预览：左卡片网格 + 右常驻预览面板；悬停卡片时在卡面上叠加静音循环预览。 */
+.tpl-layout { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-8); align-items: start; }
+.tpl-cell { position: relative; min-width: 0; }
+/* 悬停层不接收指针，:hover 落在按钮上；位移写在 cell 上，保证卡片与叠加层同步上浮。 */
+.tpl-cell:hover .tpl-card { transform: translateY(-4px); box-shadow: var(--shadow-2); }
+.tpl-hover {
+  position: absolute; top: 1px; left: 1px; right: 1px; aspect-ratio: 9 / 16;
+  overflow: hidden; border-radius: 11px 11px 0 0; pointer-events: none; z-index: 2;
+}
+.tpl-panel { position: sticky; top: 20px; display: flex; flex-direction: column; width: 360px; max-width: 100%; }
+.tpl-panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: var(--sp-3); }
+.tpl-panel-head b { font-size: .9rem; white-space: nowrap; }
+.tpl-panel-head span { font-size: .74rem; color: var(--ink-3); text-align: right; }
+/* 面板随视口高度收缩，保证播放器、说明与主按钮在桌面高度内完整可见。 */
+.tpl-panel-frame {
+  width: min(100%, calc((100vh - 250px) * 9 / 16)); width: min(100%, calc((100dvh - 250px) * 9 / 16));
+  min-width: 180px; margin: 0 auto;
+}
+.tpl-panel-placeholder {
+  aspect-ratio: 9 / 16; border-radius: 12px; display: grid; place-items: center;
+  font-size: .78rem; color: oklch(100% 0 0 / .9); text-shadow: 0 1px 4px oklch(0 0 0/.35);
+}
+.tpl-panel .preview-cap { margin-top: var(--sp-3); }
+.tpl-panel .btn { margin-top: var(--sp-4); }
 
 /* ---------- Wizard ---------- */
 .wizard-steps { display: flex; gap: 4px; margin-bottom: var(--sp-6); flex-wrap: wrap; }
@@ -448,6 +473,12 @@ h1, h2, h3, h4 { font-weight: 600; }
   .app-main { padding: 20px; }
   .create-grid { grid-template-columns: 1fr; }
   .preview-wrap { position: static; max-width: 320px; margin: 0 auto; }
+  /* 窄屏：预览面板移到网格上方，播放器限高 60vh，避免把卡片整体挤出首屏。 */
+  .tpl-layout { grid-template-columns: 1fr; gap: var(--sp-6); }
+  .tpl-panel { order: -1; position: static; width: 100%; max-width: 360px; margin: 0 auto; }
+  .tpl-panel-frame {
+    width: min(100%, calc(60vh * 9 / 16)); width: min(100%, calc(60dvh * 9 / 16));
+  }
 }
 @media (max-width: 639px) {
   .app-main { padding: 16px; }

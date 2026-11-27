@@ -128,6 +128,11 @@ export interface TemplateDefinition {
   height: number;
   fps: number;
   defaultProps: ProductVideoProps;
+  /**
+   * 模板选择页的演示数据：虚构商品 + 示例文案，仅供浏览器内预览播放，
+   * 不参与正式渲染，也不作为 buildVideoProps 的兜底值。
+   */
+  sampleProps: ProductVideoProps;
 }
 
 /** 预览默认值用内联 SVG data URL，避免 Composition 依赖 public/ 下的具体文件。 */
@@ -137,6 +142,26 @@ const PLACEHOLDER_SVG =
   '<text x="300" y="410" font-family="serif" font-size="48" fill="#9c8f7e" text-anchor="middle">PRODUCT</text>' +
   "</svg>";
 const PLACEHOLDER_IMAGE_URL = `data:image/svg+xml;utf8,${encodeURIComponent(PLACEHOLDER_SVG)}`;
+
+/**
+ * 示例商品图：透明底 SVG data URL（居中的瓶身剪影），在模板里呈「商品抠图」效果。
+ * 两种颜色取自各模板在卡片上的色调，保证卡片缩略与播放画面观感一致。
+ */
+function sampleImageUrl(light: string, dark: string): string {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">' +
+    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${light}"/><stop offset="1" stop-color="${dark}"/></linearGradient></defs>` +
+    '<ellipse cx="300" cy="742" rx="150" ry="20" fill="#000" opacity=".14"/>' +
+    '<rect x="262" y="66" width="76" height="76" rx="16" fill="#1f2937"/>' +
+    '<path d="M225 176 Q225 142 262 142 L338 142 Q375 142 375 176 L375 690 Q375 732 333 732 L267 732 Q225 732 225 690 Z" fill="url(#g)"/>' +
+    '<rect x="253" y="350" width="94" height="214" rx="12" fill="#fff" opacity=".94"/>' +
+    `<rect x="271" y="384" width="58" height="10" rx="5" fill="${dark}"/>` +
+    '<rect x="271" y="410" width="40" height="7" rx="3.5" fill="#9ca3af"/>' +
+    '<rect x="271" y="426" width="52" height="7" rx="3.5" fill="#c7ccd4"/>' +
+    '<rect x="271" y="442" width="34" height="7" rx="3.5" fill="#c7ccd4"/>' +
+    "</svg>";
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
 
 const baseDefaultProps: ProductVideoProps = {
   title: "产品标题",
@@ -157,6 +182,15 @@ export const TEMPLATES: readonly TemplateDefinition[] = [
     durationSec: 15,
     ...VIDEO_SPEC,
     defaultProps: { ...baseDefaultProps },
+    sampleProps: {
+      title: "云感保温杯",
+      subtitle: "新品首发 · 轻装出行",
+      imageUrl: sampleImageUrl("#3aa695", "#0b5a52"),
+      sellingPoints: ["12 小时锁温", "仅 280g", "一键开合"],
+      cta: "了解新品",
+      price: "¥199",
+      brandColor: "#0f766e",
+    },
   },
   {
     id: "product-highlight",
@@ -170,6 +204,15 @@ export const TEMPLATES: readonly TemplateDefinition[] = [
       subtitle: "三大理由，值得拥有",
       brandColor: "#0f766e",
     },
+    sampleProps: {
+      title: "山野轻量冲锋衣",
+      subtitle: "三大理由，值得拥有",
+      imageUrl: sampleImageUrl("#5cbf6a", "#14532d"),
+      sellingPoints: ["防泼水面料", "透气耐磨", "仅 320g"],
+      cta: "了解更多",
+      price: "¥499",
+      brandColor: "#15803d",
+    },
   },
   {
     id: "product-sale",
@@ -179,6 +222,17 @@ export const TEMPLATES: readonly TemplateDefinition[] = [
     durationSec: 15,
     ...VIDEO_SPEC,
     defaultProps: { ...baseDefaultProps, cta: "立即抢购", brandColor: "#dc2626" },
+    sampleProps: {
+      title: "夏日清凉季",
+      subtitle: "全场单品 · 限时直降",
+      imageUrl: sampleImageUrl("#fb8a9b", "#9f1239"),
+      sellingPoints: ["冰感面料", "速干透气", "三色可选"],
+      cta: "立即抢购",
+      price: "¥129",
+      originalPrice: "¥199",
+      discountText: "限时 6.5 折",
+      brandColor: "#be123c",
+    },
   },
   {
     id: "product-showcase",
@@ -188,8 +242,23 @@ export const TEMPLATES: readonly TemplateDefinition[] = [
     durationSec: 20,
     ...VIDEO_SPEC,
     defaultProps: { ...baseDefaultProps, brandColor: "#1f2937" },
+    sampleProps: {
+      title: "手工真皮马鞍包",
+      subtitle: "一针一线 · 传承工艺",
+      imageUrl: sampleImageUrl("#d9b36c", "#78350f"),
+      sellingPoints: ["头层牛皮", "黄铜五金", "手工缝线"],
+      cta: "进入系列",
+      price: "¥1,280",
+      brandColor: "#92400e",
+    },
   },
 ];
+
+/** 模板选择页的演示参数；未注册的 id 返回 null，由调用方决定不渲染预览。 */
+export function previewFor(id: string): { compositionId: TemplateId; props: ProductVideoProps } | null {
+  const found = TEMPLATES.find((t) => t.id === id);
+  return found ? { compositionId: found.compositionId, props: found.sampleProps } : null;
+}
 
 /** 未知模板必须在进入渲染前失败，不能静默回退到默认模板。 */
 export function getTemplate(id: string): TemplateDefinition {
