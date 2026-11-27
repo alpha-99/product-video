@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * P1-6：compositionId 是内部渲染标识，绝不直接渲染给用户。
- * 这里集中维护「内部 id → 面向用户的英文模板名 + CTA 文案」映射，
- * 文案取自设计稿 06（ProductVideo_AI_UI设计方案.html:639-642）。
+ * P1-6 / M1：compositionId 是内部渲染标识，绝不直接渲染给用户。
+ * V1.0 起展示名与 CTA 由 DB 运营元数据下发（/api/templates），前端只做中性兜底，
+ * 不再维护硬编码的「id → 文案」映射——改文案不再需要发版。
  */
 export interface TemplateDisplay {
   /** 支持 \n 换行，配合 .tv-title 的 white-space: pre-line。 */
@@ -11,14 +11,15 @@ export interface TemplateDisplay {
   cta: string;
 }
 
-export const TEMPLATE_DISPLAY: Readonly<Record<string, TemplateDisplay>> = {
-  "product-launch": { englishName: "Product\nLaunch", cta: "Discover More" },
-  "product-highlight": { englishName: "Product\nHighlight", cta: "Learn More" },
-  "product-sale": { englishName: "Summer\nSale 30%", cta: "Shop Now" },
-  "product-showcase": { englishName: "Premium\nShowcase", cta: "The Collection" },
-};
+interface DisplaySource {
+  englishName?: string | null;
+  cta?: string | null;
+}
 
-/** 未知模板用中性展示名兜底，绝不回退成内部 id。 */
-export function displayFor(compositionId: string): TemplateDisplay {
-  return TEMPLATE_DISPLAY[compositionId] ?? { englishName: "Video\nTemplate", cta: "Discover More" };
+/** 未知/缺字段时用中性展示名兜底，绝不回退成内部 id（P1-6）。 */
+export function displayFor(template: DisplaySource): TemplateDisplay {
+  return {
+    englishName: template.englishName?.trim() || "VIDEO\nTEMPLATE",
+    cta: template.cta?.trim() || "Discover More",
+  };
 }

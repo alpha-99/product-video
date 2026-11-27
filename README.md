@@ -1,7 +1,7 @@
 # ProductVideo AI 开发指南
 
 > 面向本地开发与联调：如何启动、如何调试前端与后端、如何排障。
-> 最后更新：2026-11-27（阶段一～九已完成，部署配置见 `deploy/`；新增 §8「管理员账号使用方式」——属模板管理补全方案，**业务代码待落地**，详见该章状态说明）。
+> 最后更新：2026-11-27（阶段一～九已完成，部署配置见 `deploy/`；模板管理补全方案已落地为代码，§8 为管理员使用方式与**上线前必做清单**）。
 
 ## 0. 先看架构
 
@@ -348,12 +348,12 @@ npm run backup / npm run restore    # pg_dump 备份与恢复
 - Nginx 配置在 `deploy/nginx/`，`/api/health` 挂监控；cron 在 `deploy/cron/product-video`（每日备份、每分钟告警、每日清理、每周存储审计）。
 - 生产环境变量统一从 `.env.production` 读取，密钥不要写进 `ecosystem.config.cjs` 或提交入库。
 
-## 8. 管理员账号使用方式（模板管理补全方案 · 业务代码待落地）
+## 8. 管理员账号使用方式（模板管理补全方案 · 已落地）
 
-> **先看状态**：本章记录的是 `docs/prd/ProductVideo_AI_模板管理补全设计方案_V1.0.md`（r3）里已拍板的管理员与模板管理端**用法**。
-> 截至 2026-11-27，这些能力**尚未实现**：`users.role` 列、`/api/admin/**`、`/admin/*` 页面、`npm run admin:role` 脚本都还不存在。
-> 当前版本所有登录用户都是普通用户，直接访问管理端会得到 **404（路由不存在）而不是 403**。
-> 下列命令与页面在方案落地并部署后才生效；不要在生产上按本章试跑。
+> **先看状态**：本章记录的是 `docs/prd/ProductVideo_AI_模板管理补全设计方案_V1.0.md`（r3）对应的管理员与模板管理端**用法**，相关能力已实现并在代码中。
+> 已落地：`users.role` 列（005 迁移）、`/api/admin/**` 路由、`/admin/*` 页面、`npm run admin:role` 脚本。
+> 未登录访问管理端会返回 401，普通用户返回 **403**；菜单也仅对 `role='admin'` 渲染。
+> **上线前必须先做 §8.10 的清单**：尤其是 bootstrap 主备 2 名管理员，否则页面提权入口冻结。当前开发库管理员数为 0（验证用账号已清理）。
 
 ### 8.1 一句话权限模型
 
@@ -387,9 +387,9 @@ npm run backup / npm run restore    # pg_dump 备份与恢复
 
 重要界限：**脚本不是随时可用的提权通道**。admin ≥ 2 时脚本执行 `--role admin` 会被拒绝并提示走页面复核；它只保留 bootstrap 与灾备两种用途。
 
-### 8.4 生产 / 预发：bootstrap 脚本（方案落地后可用）
+### 8.4 生产 / 预发：bootstrap 脚本（已可用）
 
-脚本文件 `scripts/set-user-role.ts`，命令 `npm run admin:role`（需同步加入 `package.json` 的 `scripts`）。
+脚本文件 `scripts/set-user-role.ts`，命令 `npm run admin:role`（已写入 `package.json` 的 `scripts`）。
 
 ```bash
 # 1) 先看现有管理员名单（只读，幂等）
@@ -412,17 +412,29 @@ npm run admin:role -- \
   --reason "首次部署 bootstrap 备用账号，工单 CHG-2026-1127"
 ```
 
-事务内依次执行：读当前角色 → 校验变更后 admin 数 ≥ 1 → 更新 → 写 `user_role_audit_logs`（`source=script`）→ 提交。四道守卫：
+事务内依次执行：读当前角色 → 校验变更后 admin 数 ≥ 1 → 更新 → 写 `user_role_audit_logs`（`source=script`）→ 提交。守卫清单：
 
 | 守卫 | 不通过的结果 |
 |---|---|
 | `--actor-email` 与 `--email` 相同 | 拒绝（防自我提权） |
 | 目标 email 在 `users` 表无对应行 | 失败（脚本只改角色，不建号） |
+| 授予 admin 时 `--reason` 未原样包含 `--actor` | 拒绝：`[admin:role] 授予 admin 的 --reason 必须包含工单号（灾备留痕）` |
+| `--actor-email` 未提供时不校验，提供时必须与目标不同 | 相同则拒绝（防自我提权） |
 | 变更后 admin 数 = 0（降权时） | 拒绝 |
 | admin ≥ 2 时授予 admin | 拒绝并提示走页面复核 |
 | 重复授予同一角色 | 返回「无变更」，不写重复审计 |
 
 验收：`--list` 显示 2 名不同 admin；`user_role_audit_logs` 有 2 条 `source=script` 记录。脚本纳入 Git 与 Code Review，**禁止用裸 SQL 替代**。
+
+**常见报错排查**
+
+| 现象 | 原因 | 处理 |
+|---|---|---|
+| `[admin:role] 授予 admin 的 --reason 必须包含工单号（灾备留痕）` | `--reason` 没有原样包含 `--actor` 的值。例如 `--actor 工单` 配 `--reason "init 001"`，字符串里没有「工单」 | 用真实工单号并把同一串写进 reason：`--actor "工单-001" --reason "init 工单-001"` |
+| `未知参数: 001` | reason 含空格却没加引号，被 shell 拆成多个参数 | 整个 reason 用双引号包裹，如 `--reason "init 工单-001"` |
+| `目标账号不存在，请先让用户登录创建账号` | 脚本只改 `users.role`，不创建用户 | 让目标账号先登录一次，再重试 |
+
+> 实测记录（2026-11-27，开发库）：只读检查显示当时 admin 数为 0、目标账号 `role=user`；按上面修正 actor/reason 后即可授予。授予成功后必须再给**另一邮箱**授予 admin（admin=1 时脚本仍允许），否则页面提权会因 `ROLE_NEEDS_SECOND_ADMIN` 冻结。
 
 ### 8.5 推荐：把 bootstrap 挂到部署钩子
 
@@ -438,7 +450,7 @@ npm run admin:role -- \
   --reason "部署钩子 bootstrap，工单 $DEPLOY_CHANGE_TICKET"
 ```
 
-这样保留脚本全部守卫和审计，效果上仍是「部署完成即完成 bootstrap」。脚本尚不存在，钩子需与脚本一起落地。
+这样保留脚本全部守卫和审计，效果上仍是「部署完成即完成 bootstrap」。脚本已落地；钩子按需接入 `deploy/deploy.sh`，**不要在迁移 SQL 里插入 admin**。
 
 ### 8.6 日常新增 / 撤销：管理端页面
 
@@ -471,10 +483,10 @@ npm run admin:role -- \
 
 本地模式 `NODE_ENV !== "production"` 时可用 `X-Dev-User-Id` 头注入身份（`src/lib/auth.ts`），curl 示例见 §4.2。但注意：**注入的身份仍需满足 `users.role='admin'`**，否则 `requireAdmin` 照样 403。所以需要一条本地 admin 行。
 
-不要把它写进 `db/migrations/*.sql`（迁移会进生产）。建议写独立 dev seed 脚本：
+不要把它写进 `db/migrations/*.sql`（迁移会进生产）。当前仓库未提供独立 dev seed 脚本；本地联调可直接复用 `npm run admin:role` 授予已登录账号（默认 admin 数为 0，脚本允许授予），或按下列约定自建只在本地运行的 seed 脚本：
 
 ```ts
-// scripts/seed-dev-admin.ts（方案落地后新增）
+// scripts/seed-dev-admin.ts（本地自建，不提交到生产迁移）
 // 1. 从环境变量读 DEV_ADMIN_EMAIL / DEV_ADMIN_PASSWORD，不写死
 // 2. 首行判断 NODE_ENV === "production" 直接退出
 // 3. 密码用 src/lib/password.ts 的 hashPassword() 生成 scrypt 串
@@ -499,44 +511,121 @@ curl -H 'x-dev-user-id: <本地 admin 的 user-uuid>' \
 
 结论：生产/预发走脚本或部署钩子；本地走独立 dev seed；**迁移 SQL 里不插 admin**。
 
-### 8.9 错误码速查（方案落地后）
+### 8.9 错误码速查
 
 | 码 | HTTP | 场景 |
 |---|---|---|
+| `TEMPLATE_CONFLICT` | 409 | 模板被他人修改（version CAS 失败） |
+| `TEMPLATE_LAST_ENABLED` | 409 | 停用最后一套可渲染的启用模板 |
+| `TEMPLATE_NOT_REGISTERED` | 409 | 启用未在渲染注册表命中的模板 |
 | `ROLE_SELF_CHANGE` | 403 | 改自己角色 / 提名自己 |
 | `ROLE_DIRECT_GRANT_FORBIDDEN` | 400 | 绕过复核直接写 `role=admin` |
-| `ROLE_LAST_ADMIN` | 409 | 撤销后管理员数将为 0 |
-| `ROLE_NEEDS_SECOND_ADMIN` | 409 | admin < 2 时提权 |
 | `ROLE_APPROVER_CONFLICT` | 403 | 审批人与发起人相同 |
+| `ROLE_NEEDS_SECOND_ADMIN` | 409 | admin < 2 时提权 |
+| `ROLE_LAST_ADMIN` | 409 | 撤销后管理员数将为 0 |
+| `ROLE_REQUEST_EXPIRED` | 409 | 提权申请超过 24 小时 |
+| `ROLE_REQUEST_CONFLICT` | 409 | 申请状态已变更 / 重复发起 |
 
-注意：`src/shared/api.ts` 的 `ErrorCode` 是封闭常量且当前没有这些码，落地时必须同步扩展 `ErrorCode`、`httpStatusFor()` 与 `src/lib/errors.ts` 工厂，否则统一包络会落成 500。同样，新增的测试文件必须写进 `package.json` 中显式罗列测试文件的 `test` 脚本，否则根本不会执行。
+这些码已同步到 `src/shared/api.ts` 的 `ErrorCode`、`src/lib/errors.ts` 的 `httpStatusFor()` 与错误工厂、客户端中文文案；`tests/admin-guards.test.ts` 会静态守卫三处一致。审计与业务写入同事务，审计失败整笔回滚并返回 500，不会出现「改了角色但没留痕」。
+
+### 8.10 上线前必做清单（Go / No-Go）
+
+> 任一项未通过都不要放量。所有命令在部署机执行，并使用与生产相同的 `.env.production` / `DATABASE_URL`；`admin:role` 需持部署凭据。**最高优先级是第 2 步 bootstrap 主备 2 名管理员**，否则提权页面冻结。
+
+**0. 前提确认**
+
+- 生产登录前提为 `PV_AUTH_MODE=local`（当前版本）；`DATABASE_URL` 指向 **Session Pooler**（5432），不要用 Transaction Pooler（6543）跑迁移。
+- 主备管理员候选人已各自登录过一次，`users` 表存在对应行。脚本**只改角色、不建号**，目标邮箱不存在会直接失败。
+- `db/migrations/*.sql` 中没有 `INSERT admin`；不要用裸 SQL 造管理员（会绕开守卫与审计）。
+- 当前开发库管理员数为 0（验证用账号已清理）；生产/预发必须按第 2 步重新 bootstrap。
+
+**1. 迁移与构建（按顺序）**
+
+```bash
+npx prisma generate          # 先停掉正在运行的 next，Windows 下引擎 DLL 被占用会失败
+npm run migrate              # 应用 005_template_admin.sql，幂等
+npm run migrate:check        # 期望 10 张表齐全（6 业务 + 1 运维 + 3 管理）
+npm run typecheck
+npm test                     # 期望 268/268 通过
+npm run build
+```
+
+Go 条件：005 已应用、自检 10 表、类型检查 / 测试 / 构建全绿。若报 `video_templates.display_name does not exist`，说明 Prisma Client 已重新生成但库未迁移，先补跑 `npm run migrate` 再重试。
+
+**2. bootstrap 主备 2 名管理员（必做）**
+
+```bash
+npm run admin:role -- --list
+npm run admin:role -- \
+  --email <主管理员邮箱> --role admin \
+  --actor <工单号> --actor-email <执行人邮箱> \
+  --reason "首次部署 bootstrap，工单 <工单号>"
+npm run admin:role -- \
+  --email <备管理员邮箱> --role admin \
+  --actor <工单号> --actor-email <执行人邮箱> \
+  --reason "首次部署 bootstrap 备用账号，工单 <工单号>"
+npm run admin:role -- --list
+```
+
+守卫：目标账号必须已存在；`--actor-email` 不得等于目标邮箱（防自我提权）；`--reason` 必须**原样包含 `--actor` 的值**（否则报 `授予 admin 的 --reason 必须包含工单号`，排错见 §8.4）；admin ≥ 2 时脚本提权被拒，须走页面复核；不能撤销最后一名管理员。
+
+Go 条件：`--list` 显示 **2 名不同管理员**，`user_role_audit_logs` 有 2 条 `source=script` 记录。若只建 1 名，页面提权入口会因 `ROLE_NEEDS_SECOND_ADMIN` 冻结。
+
+**3. 门禁验证**
+
+- 未登录访问 `/admin/templates`、`/admin/users`、`/api/admin/**` → **401**。
+- 普通用户 → **403** 且响应体无数据，侧栏不渲染管理入口。
+- 管理员 → 两个页面 200，`GET /api/me` 返回 `role: "admin"`，管理入口可见。
+- JWT 中的 `role` claim、Cookie、请求头（含 `X-Dev-User-Id`）都不能绕过判定；生产环境 dev 头完全失效。
+
+**4. 模板配置验收**
+
+- `GET /api/templates` 只返回启用且注册表命中的模板（种子 4 套）；旧字段 `label` / `description` / `tone` 保留，新字段 `displayName` / `englishName` / `cta` / `sortOrder` / `thumbnailUrl` 存在，不带 ETag。
+- `/admin/templates` 可编辑、排序、上传 PNG 缩略图；SVG 上传被拒；停用最后一套可渲染模板返回 409。
+- 同步注册表不覆盖运营元数据；注册缺失行自动停用并写审计。
+- 前台三个模板页缓存 TTL 为 60s；管理端写操作后调用 `invalidateAsyncCache("templates")` 立即失效。
+
+**5. 复核链路冒烟（在预发做，结束后清理数据）**
+
+- admin A 发起提权 → admin B 批准：角色变更、审计、关单在同一事务完成。
+- A 批准自己发起的申请 → 403；重复批准 → 200 幂等且审计不重复；直接 `PATCH .../role` 写 `role=admin` → 400。
+- 撤销后管理员数 ≥ 1；被撤权者下一次请求即 403。
+- 冒烟账号、临时模板改动与审计记录上线前清理，避免污染生产管理员名单。
+
+**6. 可选：部署钩子**
+
+按 §8.5 在 `deploy/deploy.sh` 的迁移步骤后调用脚本，凭证从 `.env.production` 注入。注意 admin ≥ 2 时脚本会拒绝提权，建议仅在首次部署执行，或加「当前 admin = 0 才执行」的条件判断。
+
+**Go / No-Go**：第 0～5 步全部通过才放量；任一失败先修复，禁止用裸 SQL / 迁移插 admin 绕过。上线后按月核对管理员名单与审计日志（残余风险：两名 admin 合谋，已由全员通知 + 100% 留痕 + 月度核对缓解）。
 
 ## 9. 目录结构
 
 ```text
-src/app/(app)/        6 个业务页面（共享 AppShell 侧栏布局）
-src/app/api/          12 个接口路由
+src/app/(app)/        7 个页面（共享 AppShell 侧栏布局，含 /admin/templates 与 /admin/users）
+src/app/api/          30 个接口路由（含 /api/admin/** 与前台缩略图读取）
 src/app/login/        独立登录页
 src/app/preview/      Remotion Player 模板预览
+src/app/admin.css     管理端专用样式（复用 globals.css 的 OKLCH token）
 src/components/       AppShell / Toaster / ui.tsx（设计系统组件）
 src/lib/client/       前端 api.ts / hooks.ts / cache.ts / types.ts
 src/lib/              服务端：db / auth / session / queue / pipeline / renderer /
-                      storage / billing / ai / ops / health 相关
+                      storage / billing / ai / ops / health / admin-* 相关
 src/shared/           前后端共用 Zod Schema 与 API 契约
 src/worker/           Worker 主循环
 remotion/             4 套生产模板 + 免费模板测试入口
 prisma/schema.prisma  数据模型
-db/migrations/        001 建表 / 002 用量 / 003 模板种子 / 004 运维表（005 模板管理待落地）
-scripts/              迁移、自检、巡检、告警、冒烟、渲染 CLI（bootstrap/提权脚本待落地）
+db/migrations/        001 建表 / 002 用量 / 003 模板种子 / 004 运维表 / 005 模板管理
+scripts/              迁移、自检、巡检、告警、冒烟、渲染 CLI、set-user-role.ts（bootstrap/灾备）
 deploy/               PM2 / Nginx / 部署 / 备份 / cron / logrotate
-tests/                15 个测试文件
+tests/                28 个测试文件（268 个用例）
 ```
 
 ## 10. 命令速查
 
 | 目的 | 命令 |
 |---|---|
-| 管理员/模板管理使用方式 | 见 §8（方案待落地，当前不可用） |
+| 管理员/模板管理使用方式 | 见 §8；**上线前必做见 §8.10** |
+| 管理员 bootstrap | `npm run admin:role -- --list` / `--email ... --role admin --actor <工单> --reason "<含工单>"` |
 | 起前端（首选） | `npm run dev` |
 | 起前端（隔离缓存，跨平台） | `npm run dev:isolated` |
 | 起 Worker | `npm run worker` |

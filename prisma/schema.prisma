@@ -21,6 +21,8 @@ model User {
   quotaLeft  Int      @default(3) @map("quota_left")
   /// 内测本地登录（PV_AUTH_MODE=local）的 scrypt 密码；Supabase Auth 用户保持 NULL
   passwordHash String? @map("password_hash") @db.VarChar(255)
+  /// 角色二值：user / admin（管理员唯一判定依据，DB CHECK 约束）
+  role       String   @default("user") @db.VarChar(20)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   products     Product[]
@@ -68,11 +70,25 @@ model VideoTemplate {
   thumbnailPath  String?  @map("thumbnail_path")
   config         Json     @default("{}")
   enabled        Boolean  @default(true)
+  /// 运营元数据层（DB 单一真源）
+  displayName    String?  @map("display_name") @db.VarChar(120)
+  englishName    String?  @map("english_name") @db.VarChar(120)
+  description    String?  @map("description") @db.VarChar(300)
+  cta            String?  @map("cta") @db.VarChar(60)
+  /// 展示色调枚举：energetic/calm/premium/playful/urgent
+  tone           String?  @map("tone") @db.VarChar(20)
+  sortOrder      Int      @default(0) @map("sort_order")
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?  @map("updated_by") @db.Uuid
+  /// 乐观锁（FR-04 并发）
+  version        Int      @default(1)
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   videoJobs VideoJob[]
 
+  @@unique([compositionId], name: "uq_templates_composition_id")
   @@index([enabled, category], name: "idx_templates_enabled")
+  @@index([sortOrder, compositionId], name: "idx_templates_sort")
   @@map("video_templates")
 }
 
@@ -173,4 +189,59 @@ model WorkerHeartbeat {
 
   @@index([lastSeenAt], name: "idx_worker_heartbeats_seen")
   @@map("worker_heartbeats")
+}
+
+/// 模板写操作审计：与主操作同一事务，写失败整笔回滚。
+/// actor_user_id 用标量 UUID（不建 Prisma relation，避免与 users 的多重关系歧义）。
+model TemplateAuditLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  templateId  String   @map("template_id") @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  action      String   @db.VarChar(32)
+  beforeJson  Json?    @map("before_json")
+  afterJson   Json?    @map("after_json")
+  reason      String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([templateId, createdAt(sort: Desc)], name: "idx_tpl_audit_template")
+  @@map("template_audit_logs")
+}
+
+/// 角色变更审计：web / script 全量留痕；不记邮箱明文。
+model UserRoleAuditLog {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  targetUserId String   @map("target_user_id") @db.Uuid
+  actorUserId  String?  @map("actor_user_id") @db.Uuid
+  actorLabel   String?  @map("actor_label") @db.VarChar(120)
+  source       String   @db.VarChar(20)
+  requestId    String?  @map("request_id") @db.Uuid
+  fromRole     String   @map("from_role") @db.VarChar(20)
+  toRole       String   @map("to_role") @db.VarChar(20)
+  reason       String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([targetUserId, createdAt(sort: Desc)], name: "idx_role_audit_target")
+  @@map("user_role_audit_logs")
+}
+
+/// 提权复核单：双人复核凭据；过期由列表读取时惰性置位，不依赖定时任务。
+model UserRoleChangeRequest {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  targetUserId String    @map("target_user_id") @db.Uuid
+  fromRole     String    @default("user") @map("from_role") @db.VarChar(20)
+  toRole       String    @map("to_role") @db.VarChar(20)
+  requestedBy  String    @map("requested_by") @db.Uuid
+  reason       String
+  status       String    @default("pending") @db.VarChar(20)
+  reviewedBy   String?   @map("reviewed_by") @db.Uuid
+  reviewReason String?   @map("review_reason")
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  decidedAt    DateTime? @map("decided_at") @db.Timestamptz(6)
+
+  /// 部分唯一索引 uq_role_req_pending(target_user_id) WHERE status='pending'
+  /// Prisma 无法表达，保留在 005_template_admin.sql 中，勿用 migrate 覆盖。
+  @@index([targetUserId, status], name: "idx_role_req_target_status")
+  @@index([status, expiresAt], name: "idx_role_req_status_expiry")
+  @@map("user_role_change_requests")
 }

@@ -75,6 +75,23 @@ export function thumbnailRelativePath(userId: string, jobId: string): string {
 }
 
 /**
+ * 模板缩略图受控路径：thumbnails/{templateId}/{uuid}.{ext}（方案 V1.0 §6.3）。
+ * templateId 是服务端查库得到的 UUID，storedName 由 upload.ts 生成，均不含 / 与 ..。
+ */
+export function templateThumbnailRelativePath(templateId: string, storedName: string): string {
+  return buildRelative("thumbnails", "templates", templateId, storedName);
+}
+
+/** 读取鉴权缩略图时确认路径属于模板目录，杜绝改 path 越权读取。 */
+export function isTemplateThumbnailPath(relativePath: string, templateId: string): boolean {
+  return (
+    relativePath.startsWith(`thumbnails/templates/${templateId}/`) &&
+    !relativePath.includes("..") &&
+    !relativePath.includes("\\")
+  );
+}
+
+/**
  * 存储抽象（方案 9.2）。相对路径一律由服务端构造，接口内部二次校验。
  * getSignedPath 仅返回受控相对路径，供鉴权接口内部解析；它不是公开 URL。
  */

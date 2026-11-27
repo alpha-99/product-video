@@ -17,7 +17,7 @@ const pool = hasDb ? new Pool({ connectionString: process.env.DATABASE_URL }) : 
 const TEST_ROOT = path.join(os.tmpdir(), `pv-products-test-${Date.now()}`);
 const userId = randomUUID();
 const otherUserId = randomUUID();
-const templateId = randomUUID();
+const templateId = "11111111-1111-4111-8111-111111111111"; // §6.2.1 方案 A：复用种子行
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
 
 let products: typeof import("../src/lib/products");
@@ -32,11 +32,8 @@ before(async () => {
     "INSERT INTO users (id, email, quota_left) VALUES ($1,$2,10),($3,$4,10)",
     [userId, `p-${userId}@example.invalid`, otherUserId, `p-${otherUserId}@example.invalid`]
   );
-  await pool.query(
-    `INSERT INTO video_templates (id, name, category, composition_id, duration_sec)
-     VALUES ($1,'测试模板','launch','product-launch',15)`,
-    [templateId]
-  );
+  // §6.2.1 方案 A：直接复用 003_seed_templates.sql 的种子行，不再插入临时模板，
+  // 避免 UNIQUE(composition_id) 下与种子行同值冲突；也不在 after 里误删种子。
   // storage 在模块加载时读取 STORAGE_ROOT，必须先设置环境再导入。
   storage = await import("../src/lib/storage");
   products = await import("../src/lib/products");
@@ -47,7 +44,7 @@ before(async () => {
 after(async () => {
   if (!pool) return;
   await pool.query("DELETE FROM users WHERE id IN ($1,$2)", [userId, otherUserId]);
-  await pool.query("DELETE FROM video_templates WHERE id = $1", [templateId]);
+  // 种子模板行保留，不删除（方案 A）
   await pool.end();
   await rm(TEST_ROOT, { recursive: true, force: true });
 });

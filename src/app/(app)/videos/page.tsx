@@ -58,7 +58,7 @@ export default function VideosPage() {
   );
   const templatesQuery = useAsync<TemplateDto[]>(
     () => api.get<TemplateDto[]>("/api/templates"),
-    { cacheKey: "templates", ttlMs: 5 * 60_000 }
+    { cacheKey: "templates", ttlMs: 60_000 }
   );
   const [playing, setPlaying] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);

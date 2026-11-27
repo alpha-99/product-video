@@ -16,7 +16,7 @@ const pool = hasDb ? new Pool({ connectionString: process.env.DATABASE_URL }) : 
 
 const userId = randomUUID();
 const productId = randomUUID();
-const templateId = randomUUID();
+const templateId = "11111111-1111-4111-8111-111111111111"; // §6.2.1 方案 A：复用种子行
 const email = `pipeline-test-${userId}@example.invalid`;
 
 let jobs: typeof import("../src/lib/jobs");
@@ -32,11 +32,7 @@ before(async () => {
      VALUES ($1,$2,'测试商品','uploads/test.png','[]'::jsonb)`,
     [productId, userId]
   );
-  await pool.query(
-    `INSERT INTO video_templates (id, name, category, composition_id, duration_sec)
-     VALUES ($1,'测试模板','launch','product-launch',15)`,
-    [templateId]
-  );
+  // §6.2.1 方案 A：复用种子模板行，不再插入临时模板（避免 UNIQUE 冲突）。
   jobs = await import("../src/lib/jobs");
   pipeline = await import("../src/lib/pipeline");
   errors = await import("../src/lib/errors");
@@ -45,7 +41,7 @@ before(async () => {
 after(async () => {
   if (!pool) return;
   await pool.query("DELETE FROM users WHERE id = $1", [userId]);
-  await pool.query("DELETE FROM video_templates WHERE id = $1", [templateId]);
+  // 种子模板行保留（方案 A）
   await pool.end();
 });
 

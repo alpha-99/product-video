@@ -26,7 +26,7 @@ describe("P0：阻断项修复守卫", () => {
     assert.match(shell, /className="skip-link" href="#main-content"/);
     assert.match(shell, /className="top-nav-bar"/);
     assert.match(shell, /id="main-content"/);
-    assert.match(shell, /const navItems = NAV\.map/);
+    assert.match(shell, /const navItems = (?:NAV|allNav)\.map/); // V1.0：管理员入口并入 allNav 后共用同一份判定
     const navCount = (shell.match(/aria-label="主导航"/g) ?? []).length;
     assert.equal(navCount, 2, "侧栏与顶部条应各有一份主导航");
   });
@@ -99,16 +99,19 @@ describe("P1：主要差距修复守卫", () => {
     assert.match(read("src/app/(app)/videos/page.tsx"), /ConfirmDialog/);
   });
 
-  it("P1-6 模板卡不再渲染内部 compositionId", () => {
+  it("P1-6 / M1 模板卡不再渲染内部 compositionId，展示名与 CTA 由 DB 下发", () => {
     const templates = read("src/app/(app)/templates/page.tsx");
     assert.doesNotMatch(templates, /compositionId\.replace/);
-    assert.match(templates, /displayFor\(template\.compositionId\)/);
+    assert.match(templates, /displayFor\(template\)/); // V1.0：从 DB DTO 取，不再按 id 查硬编码映射
     assert.match(templates, /display\.englishName/);
     assert.match(templates, /display\.cta/);
+    const route = read("src/app/api/templates/route.ts");
+    assert.match(route, /const englishName = row\.englishName \|\| NEUTRAL\.englishName/);
+    assert.match(route, /const cta = row\.cta \|\| NEUTRAL\.cta/);
+    assert.doesNotMatch(route, /const DISPLAY/); // M1：删除硬编码 DISPLAY 常量
     const mapping = read("src/lib/client/template-display.ts");
-    for (const cta of ["Discover More", "Learn More", "Shop Now", "The Collection"]) {
-      assert.ok(mapping.includes(cta), `缺少设计稿 CTA: ${cta}`);
-    }
+    assert.match(mapping, /中性展示名兜底|neutral/i); // 未知模板用中性兜底，绝不回退 id
+    assert.doesNotMatch(mapping, /TEMPLATE_DISPLAY/); // 删除硬编码映射
   });
 });
 
@@ -158,12 +161,13 @@ describe("基准冲突：可落地项", () => {
     assert.match(read("src/lib/job-state.ts"), /usageRecord\.updateMany/);
   });
 
-  it("C-05 设计稿原型已按规范条款修正（44px + 窄屏顶部导航）", () => {
-    const design = read("docs/ui/ProductVideo_AI_UI设计方案.html");
+  it("C-05 UI 原型已按规范条款修正（44px + 窄屏顶部导航）", () => {
+    // 原 docs/ui/ProductVideo_AI_UI设计方案.html 已不在仓库；现行原型在 docs/ui-design/。
+    const design = read("docs/ui-design/ProductVideo_AI_模板管理_UI原型_V1.0.html");
     assert.doesNotMatch(design, /\.icon-btn\{width:30px/);
     assert.match(design, /\.icon-btn\{width:44px/);
-    assert.match(design, /\.app-topnav\{/);
-    assert.match(design, /<nav class="app-topnav"/);
+    // 窄屏顶部导航类名由 app-topnav 演进为 top-nav-bar，两者都是等价实现。
+    assert.match(design, /\.top-nav-bar\{/);
     assert.match(design, /@media \(max-width:1023px\)/);
     assert.doesNotMatch(design, /min-height:38px/);
   });

@@ -26,6 +26,30 @@ export const errors = {
   aiUnavailable: (msg = "文案生成服务暂时不可用，请稍后重试或手工填写", retryAfterMs?: number) =>
     new DomainError(ErrorCode.AI_UNAVAILABLE, msg, undefined, retryAfterMs),
   internal: (msg = "服务内部错误") => new DomainError(ErrorCode.INTERNAL_ERROR, msg),
+
+  // ---- 模板管理 ----
+  templateConflict: (msg = "模板已被他人修改，请刷新后重试") =>
+    new DomainError(ErrorCode.TEMPLATE_CONFLICT, msg),
+  templateLastEnabled: (msg = "这是最后一套可渲染的启用模板，停用后全站将无法创作") =>
+    new DomainError(ErrorCode.TEMPLATE_LAST_ENABLED, msg),
+  templateNotRegistered: (msg = "模板未注册到渲染注册表，禁止启用") =>
+    new DomainError(ErrorCode.TEMPLATE_NOT_REGISTERED, msg),
+
+  // ---- 角色与提权复核 ----
+  roleSelfChange: (msg = "不能修改自己的角色") =>
+    new DomainError(ErrorCode.ROLE_SELF_CHANGE, msg),
+  roleDirectGrantForbidden: (msg = "禁止绕过复核单直接授予管理员权限") =>
+    new DomainError(ErrorCode.ROLE_DIRECT_GRANT_FORBIDDEN, msg),
+  roleApproverConflict: (msg = "不能批准自己发起的提权申请") =>
+    new DomainError(ErrorCode.ROLE_APPROVER_CONFLICT, msg),
+  roleNeedsSecondAdmin: (msg = "管理员不足 2 名，请通过运维脚本补齐备用账号后再发起提权") =>
+    new DomainError(ErrorCode.ROLE_NEEDS_SECOND_ADMIN, msg),
+  roleLastAdmin: (msg = "不能撤销最后一名管理员") =>
+    new DomainError(ErrorCode.ROLE_LAST_ADMIN, msg),
+  roleRequestExpired: (msg = "提权申请已超过 24 小时有效期，请重新发起") =>
+    new DomainError(ErrorCode.ROLE_REQUEST_EXPIRED, msg),
+  roleRequestConflict: (msg = "提权申请状态已变更，请刷新后重试") =>
+    new DomainError(ErrorCode.ROLE_REQUEST_CONFLICT, msg),
 };
 
 /** 错误码 → HTTP 状态（方案 5.2）。 */
@@ -45,6 +69,19 @@ export function httpStatusFor(code: ErrorCodeValue): number {
       return 429;
     case ErrorCode.AI_UNAVAILABLE:
       return 503;
+    case ErrorCode.TEMPLATE_CONFLICT:
+    case ErrorCode.TEMPLATE_LAST_ENABLED:
+    case ErrorCode.TEMPLATE_NOT_REGISTERED:
+    case ErrorCode.ROLE_NEEDS_SECOND_ADMIN:
+    case ErrorCode.ROLE_LAST_ADMIN:
+    case ErrorCode.ROLE_REQUEST_EXPIRED:
+    case ErrorCode.ROLE_REQUEST_CONFLICT:
+      return 409;
+    case ErrorCode.ROLE_SELF_CHANGE:
+    case ErrorCode.ROLE_APPROVER_CONFLICT:
+      return 403;
+    case ErrorCode.ROLE_DIRECT_GRANT_FORBIDDEN:
+      return 400;
     default:
       return 500;
   }

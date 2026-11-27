@@ -1,8 +1,10 @@
 /**
- * GET /api/templates — 已启用模板列表（方案 5.1）。
+ * GET /api/templates — 已启用模板列表（方案 5.1 / V1.0 FR-11）。
  *
- * 模板元数据（展示名、描述、配色）来自设计稿，DB 行提供 UUID 与时长；
- * compositionId 必须命中 shared 注册表，否则不返回，避免前端选到无法渲染的模板。
+ * r3 变更：运营元数据（展示名/英文名/描述/CTA/tone/排序/缩略图）改为 DB 单一真源，
+ * 删除硬编码 DISPLAY 映射。compositionId 必须命中注册表，否则不返回。
+ * 响应「只增字段」：旧字段 label/description/tone 仍存在并同步为新值，新增
+ * displayName/englishName/cta/sortOrder/thumbnailUrl；不加 ETag（无消费方，D5）。
  */
 import { NextRequest } from "next/server";
 import { resolveUserId } from "../../../lib/auth";
@@ -12,11 +14,22 @@ import { TEMPLATES } from "../../../shared/template.schema";
 
 export const runtime = "nodejs";
 
-const DISPLAY: Record<string, { label: string; description: string; tone: string }> = {
-  "product-launch": { label: "新品展示", description: "主视觉 + 动态标题", tone: "g1" },
-  "product-highlight": { label: "卖点介绍", description: "卖点动画 + 字幕", tone: "g3" },
-  "product-sale": { label: "促销活动", description: "原价 / 折扣 / CTA", tone: "g2" },
-  "product-showcase": { label: "高级品牌展示", description: "品牌视觉 + 优雅转场", tone: "g4" },
+/** 未知/缺字段时的中性兜底：不回退成内部 compositionId（P1-6）。 */
+const NEUTRAL = {
+  displayName: "视频模板",
+  englishName: "VIDEO TEMPLATE",
+  description: "视频模板",
+  cta: "了解更多",
+  tone: "g1",
+} as const;
+
+/** tone 枚举 → CSS 视觉类（运营可改，映射固定）。 */
+const TONE_VISUAL: Record<string, string> = {
+  energetic: "g2",
+  calm: "g4",
+  premium: "g1",
+  playful: "g3",
+  urgent: "g2",
 };
 
 export async function GET(request: NextRequest) {
@@ -24,7 +37,7 @@ export async function GET(request: NextRequest) {
     resolveUserId(request.headers);
     const rows = await db.videoTemplate.findMany({
       where: { enabled: true },
-      orderBy: { category: "asc" },
+      orderBy: [{ sortOrder: "asc" }, { compositionId: "asc" }],
       select: {
         id: true,
         name: true,
@@ -32,33 +45,47 @@ export async function GET(request: NextRequest) {
         compositionId: true,
         durationSec: true,
         thumbnailPath: true,
+        displayName: true,
+        englishName: true,
+        description: true,
+        cta: true,
+        tone: true,
+        sortOrder: true,
       },
     });
 
-    // 同一 compositionId 在库里可能有多行（历史数据/并行测试夹具），
-    // 前端只应看到 4 张卡片，这里按注册表 id 去重，保留排序最靠前的一行。
+    const registered = new Set<string>(TEMPLATES.map((t) => t.id));
     const seen = new Set<string>();
     const templates = rows
-      .filter((row) => TEMPLATES.some((t) => t.id === row.compositionId))
+      .filter((row) => registered.has(row.compositionId))
       .filter((row) => {
         if (seen.has(row.compositionId)) return false;
         seen.add(row.compositionId);
         return true;
       })
       .map((row) => {
-        const meta = DISPLAY[row.compositionId] ?? {
-          label: row.name,
-          description: "视频模板",
-          tone: "g1",
-        };
+        const displayName = row.displayName || NEUTRAL.displayName;
+        const englishName = row.englishName || NEUTRAL.englishName;
+        const description = row.description || NEUTRAL.description;
+        const cta = row.cta || NEUTRAL.cta;
+        const tone = row.tone || NEUTRAL.tone;
         return {
+          // 旧字段（保持兼容，值同步为 DB 新值）
           id: row.id,
           name: row.name,
           category: row.category,
           compositionId: row.compositionId,
           durationSec: row.durationSec,
           thumbnailPath: row.thumbnailPath,
-          ...meta,
+          label: displayName,
+          description,
+          tone: TONE_VISUAL[tone] ?? NEUTRAL.tone,
+          // 新增字段
+          displayName,
+          englishName,
+          cta,
+          sortOrder: row.sortOrder,
+          thumbnailUrl: row.thumbnailPath ? `/api/templates/${row.id}/thumbnail` : null,
         };
       });
 

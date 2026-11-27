@@ -4,7 +4,7 @@
  * 因此可重复执行，适合本地与生产共用。
  *
  *   npm run migrate         应用全部迁移
- *   npm run migrate:check   校验 7 张业务/运维表与关键索引存在
+ *   npm run migrate:check   校验 10 张业务/运维/管理表与关键索引存在
  */
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -25,6 +25,10 @@ const EXPECTED_TABLES = [
   "usage_records",
   // 阶段九：Worker 心跳（方案 11），由 004_ops.sql 创建。
   "worker_heartbeats",
+  // 阶段十：模板管理补全（方案 V1.0），由 005_template_admin.sql 创建。
+  "template_audit_logs",
+  "user_role_audit_logs",
+  "user_role_change_requests",
 ];
 
 async function main() {
@@ -63,7 +67,7 @@ async function main() {
       const present = new Set(rows.map((r) => r.tablename));
       const missing = EXPECTED_TABLES.filter((t) => !present.has(t));
       if (missing.length) throw new Error(`缺失表: ${missing.join(", ")}`);
-      console.log(`[check] ${EXPECTED_TABLES.length} 张表齐全（6 业务 + 1 运维）: ${EXPECTED_TABLES.join(", ")}`);
+      console.log(`[check] ${EXPECTED_TABLES.length} 张表齐全（6 业务 + 1 运维 + 3 管理）: ${EXPECTED_TABLES.join(", ")}`);
     }
   } finally {
     client.release();

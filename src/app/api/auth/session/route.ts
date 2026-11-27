@@ -31,10 +31,18 @@ import {
 
 export const runtime = "nodejs";
 
-const LoginSchema = z.object({
-  email: z.string().trim().email("请输入有效邮箱").max(255),
-  password: z.string().min(8, "密码至少 8 位").max(128),
-});
+/**
+ * TC-15 / L2：登录/注册只接受 email/password。
+ * .strict() 让任何额外字段（role / isAdmin / role_id …）直接 400，
+ * 而不是静默剥离后还让人误以为「提权参数被接受了」。
+ * db.user.create 参数列表固定，不含任何角色字段——首个 admin 只能由脚本 bootstrap。
+ */
+const LoginSchema = z
+  .object({
+    email: z.string().trim().email("请输入有效邮箱").max(255),
+    password: z.string().min(8, "密码至少 8 位").max(128),
+  })
+  .strict();
 
 const isProd = process.env.NODE_ENV === "production";
 

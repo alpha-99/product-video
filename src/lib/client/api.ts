@@ -37,6 +37,16 @@ const MESSAGES: Record<string, string> = {
   RATE_LIMITED: "操作过于频繁，请稍后再试",
   AI_UNAVAILABLE: "AI 文案服务暂时不可用，可手工填写后继续",
   INTERNAL_ERROR: "服务暂时不可用，请稍后重试",
+  TEMPLATE_CONFLICT: "模板已被他人修改，请刷新后重试",
+  TEMPLATE_LAST_ENABLED: "这是最后一套可渲染的启用模板，无法停用",
+  TEMPLATE_NOT_REGISTERED: "该模板未注册到渲染注册表，无法启用",
+  ROLE_SELF_CHANGE: "不能修改自己的角色",
+  ROLE_DIRECT_GRANT_FORBIDDEN: "管理员权限必须通过复核流程授予",
+  ROLE_APPROVER_CONFLICT: "不能批准自己发起的提权申请",
+  ROLE_NEEDS_SECOND_ADMIN: "管理员不足 2 名，提权入口已冻结",
+  ROLE_LAST_ADMIN: "不能撤销最后一名管理员",
+  ROLE_REQUEST_EXPIRED: "提权申请已过期，请重新发起",
+  ROLE_REQUEST_CONFLICT: "提权申请状态已变更，请刷新后重试",
 };
 
 /** 全站统一的额度耗尽口径，避免出现「升级套餐 / 暂无升级入口」等误导表述。 */

@@ -329,16 +329,20 @@ h1, h2, h3, h4 { font-weight: 600; }
 
 /* ---------- Templates ---------- */
 .tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: var(--sp-5); }
-.tpl-card { overflow: hidden; transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .2s; cursor: pointer; text-align: left; width: 100%; }
+.tpl-card { overflow: hidden; transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .2s; cursor: pointer; text-align: left; width: 100%; height: 100%; display: flex; flex-direction: column; }
 .tpl-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-2); }
 .tpl-card.selected { border-color: var(--brand-fg); box-shadow: 0 0 0 2px var(--brand-soft); }
-.tpl-visual { aspect-ratio: 9/16; position: relative; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; }
+.tpl-visual { aspect-ratio: 9/16; flex: none; position: relative; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; overflow: hidden; }
+/* FR-07：运营上传的缩略图铺底，文案层在其上；缺图时保留原 CSS 渐变示意。 */
+.tpl-visual .tpl-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.tpl-visual .tv-tag, .tpl-visual .tv-title, .tpl-visual .tv-cta { position: relative; z-index: 1; }
 .tpl-visual .tv-tag { align-self: flex-start; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; background: oklch(100% 0 0/.2); padding: 3px 8px; border-radius: 99px; }
 .tpl-visual .tv-title { font-family: var(--font-display); font-size: 1rem; line-height: 1.1; text-shadow: 0 1px 4px oklch(0 0 0/.35); white-space: pre-line; }
 .tpl-visual .tv-cta { font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
-.tpl-body { padding: 12px 14px; }
-.tpl-body b { font-size: .82rem; display: block; }
-.tpl-body span { font-size: .68rem; color: var(--ink-3); }
+/* 等高：名称固定两行、描述固定一行，避免中英混排长名折行导致卡片参差。 */
+.tpl-body { padding: 12px 14px; flex: 1; }
+.tpl-body b { font-size: .82rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35; min-height: calc(2 * 1.35em); }
+.tpl-body span { font-size: .68rem; color: var(--ink-3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* 模板预览：左卡片网格 + 右常驻预览面板；悬停卡片时在卡面上叠加静音循环预览。 */
 .tpl-layout { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-8); align-items: start; }

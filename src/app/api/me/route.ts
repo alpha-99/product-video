@@ -12,13 +12,15 @@ export async function GET(request: NextRequest) {
     const userId = resolveUserId(request.headers);
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, quotaLeft: true, createdAt: true },
+      select: { id: true, email: true, quotaLeft: true, role: true, createdAt: true },
     });
-    if (!user) throw errors.unauthorized("用户不存在，请重新登录");
+    if (!user) throw errors.unauthorized("账号未初始化，请联系管理员");
     return ok({
       id: user.id,
       email: user.email,
       quotaLeft: user.quotaLeft,
+      // 仅用于前端是否显示管理入口；权限一律由服务端查库判定，前端 role 不作数。
+      role: user.role,
       createdAt: user.createdAt.toISOString(),
     });
   } catch (error) {

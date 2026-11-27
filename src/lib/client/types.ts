@@ -10,6 +10,8 @@ export interface Me {
   id: string;
   email: string;
   quotaLeft: number;
+  /** 仅用于前端是否显示管理入口；权限一律由服务端查库判定，前端 role 不作数。 */
+  role: "user" | "admin";
   createdAt: string;
 }
 
@@ -20,9 +22,17 @@ export interface TemplateDto {
   compositionId: string;
   durationSec: number;
   thumbnailPath: string | null;
+  /** 旧字段（保持兼容，值同步为 DB 新值） */
   label: string;
   description: string;
   tone: string;
+  /** V1.0 新增：运营元数据（DB 单一真源） */
+  displayName: string;
+  englishName: string;
+  cta: string;
+  sortOrder: number;
+  /** 鉴权缩略图地址；缺失为 null，前端降级 CSS 示意 */
+  thumbnailUrl: string | null;
 }
 
 export interface ProductDto {

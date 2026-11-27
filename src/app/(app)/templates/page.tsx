@@ -8,7 +8,12 @@ import { TemplatePreviewPanel } from "../../../components/TemplatePreviewPanel";
 import { VideoPreviewClient } from "../../../components/VideoPreviewClient";
 import { api } from "../../../lib/client/api";
 import { displayFor } from "../../../lib/client/template-display";
-import { useAsync, useIdleReady, usePrefersReducedMotion } from "../../../lib/client/hooks";
+import {
+  invalidateAsyncCache,
+  useAsync,
+  useIdleReady,
+  usePrefersReducedMotion,
+} from "../../../lib/client/hooks";
 import { previewFor } from "../../../shared/template.schema";
 import type { TemplateDto } from "../../../lib/client/types";
 
@@ -19,7 +24,8 @@ export default function TemplatesPage() {
   const router = useRouter();
   const { data: templates, loading, error, reload } = useAsync<TemplateDto[]>(
     () => api.get<TemplateDto[]>("/api/templates"),
-    { cacheKey: "templates", ttlMs: 5 * 60_000 }
+    // M2：TTL 由 5min 降至 60s；管理端写操作成功后再主动 invalidateAsyncCache("templates")。
+    { cacheKey: "templates", ttlMs: 60_000 }
   );
   const [selected, setSelected] = useState<string | null>(null);
   const groupRef = useRef<HTMLDivElement>(null);
@@ -134,8 +140,8 @@ export default function TemplatesPage() {
           >
             {templates!.map((template) => {
               const isActive = template.id === activeId;
-              // P1-6：内部 compositionId 永不直接渲染，只展示面向用户的英文名与 CTA。
-              const display = displayFor(template.compositionId);
+              // P1-6：内部 compositionId 永不直接渲染；英文名/CTA 走 DB 下发字段。
+              const display = displayFor(template);
               // 悬停中被点击选中的卡片立即撤掉叠加层，避免同一模板在卡面与面板各播一份。
               const hoverPreview =
                 hovered === template.id && !isActive && previewReady
@@ -157,6 +163,16 @@ export default function TemplatesPage() {
                     onClick={() => setSelected(template.id)}
                   >
                     <div className={`tpl-visual ${template.tone}`}>
+                      {/* FR-07：卡片优先展示缩略图，缺失降级 CSS 渐变示意。 */}
+                      {template.thumbnailUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className="tpl-thumb"
+                          src={template.thumbnailUrl}
+                          alt=""
+                          aria-hidden="true"
+                        />
+                      )}
                       <span className="tv-tag">{template.durationSec} 秒</span>
                       <span className="tv-title">{display.englishName}</span>
                       <span className="tv-cta">{display.cta}</span>

@@ -68,7 +68,7 @@ export default function CreatePage() {
   );
   const templatesQuery = useAsync<TemplateDto[]>(
     () => api.get<TemplateDto[]>("/api/templates"),
-    { cacheKey: "templates", ttlMs: 5 * 60_000 }
+    { cacheKey: "templates", ttlMs: 60_000 }
   );
 
   const [step, setStep] = useState(0);

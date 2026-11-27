@@ -18,6 +18,15 @@ const NAV = [
   { href: "/videos", label: "视频管理", icon: "▶" },
 ] as const;
 
+/**
+ * 管理后台入口：仅当 /api/me.role=admin 时展示（前端只做展示，服务端另有 gate）。
+ * 用独立的 ADMIN_NAV 拼接，避免改变 NAV 常量本身（窄屏/桌面共用）。
+ */
+const ADMIN_NAV = [
+  { href: "/admin/templates", label: "模板管理", icon: "⚙" },
+  { href: "/admin/users", label: "成员与角色", icon: "♙" },
+] as const;
+
 interface ShellContextValue {
   me: Me | null;
   refreshMe: () => void;
@@ -110,7 +119,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   // 两处导航共用同一份 active 判定与 aria-current（P0-1 / R-03）。
-  const navItems = NAV.map((item) => ({ ...item, active: pathname === item.href }));
+  const allNav = me?.role === "admin" ? [...NAV, ...ADMIN_NAV] : [...NAV];
+  const navItems = allNav.map((item) => ({ ...item, active: pathname === item.href }));
 
   return (
     <>
