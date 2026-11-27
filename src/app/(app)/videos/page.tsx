@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Account, useShell } from "../../../components/AppShell";
 import { useToast } from "../../../components/Toaster";
 import {
@@ -50,6 +51,7 @@ function JobThumb({ job, index }: { job: VideoJobDto; index: number }) {
 }
 
 export default function VideosPage() {
+  const router = useRouter();
   const toast = useToast();
   const { me, refreshMe } = useShell();
   const jobsQuery = useAsync<VideoJobDto[]>(
@@ -86,6 +88,15 @@ export default function VideosPage() {
   function openConfirm(kind: ConfirmKind, job: VideoJobDto) {
     void jobsQuery.reload();
     setConfirm({ kind, job });
+  }
+
+  /**
+   * 失败 / 已取消任务「重新编辑」：把服务端快照带到创作页，用户改完参数后
+   * 走标准 POST /api/videos 重新提交。不受 attempt 上限约束——重试同一份参数
+   * 大概率再次失败，改参数再提交才是真正的出路。
+   */
+  function reedit(job: VideoJobDto) {
+    router.push(`/create?from=${encodeURIComponent(job.id)}`);
   }
 
   async function download(job: VideoJobDto) {
@@ -251,6 +262,8 @@ export default function VideosPage() {
             const finished = completed || failed || cancelled;
             // 验收 P1-02 / P1-03：cancelled 补重试入口；达到上限的任务不再展示必然被拒的按钮。
             const canRetry = (failed || cancelled) && job.attempt < MAX_JOB_ATTEMPTS;
+            // 重新编辑走「改参数后新建任务」，不受 attempt 上限约束，失败/取消任务始终可用。
+            const canReedit = failed || cancelled;
             const title = job.inputJson?.props?.title ?? "商品视频";
             return (
               <div className="vrow" key={job.id}>
@@ -285,6 +298,17 @@ export default function VideosPage() {
                       ↻
                     </button>
                   )}
+                  {canReedit && (
+                    <button
+                      className="icon-btn"
+                      disabled={busy === job.id}
+                      onClick={() => reedit(job)}
+                      title="重新编辑参数后再提交（提交时消耗 1 次额度）"
+                      aria-label="重新编辑参数后再提交"
+                    >
+                      ✎
+                    </button>
+                  )}
                   {active && (
                     <button className="icon-btn" disabled={busy === job.id} onClick={() => openConfirm("cancel", job)} title="取消" aria-label="取消">✕</button>
                   )}
@@ -302,16 +326,16 @@ export default function VideosPage() {
                   <div className="err-line">
                     {job.errorMessage ?? "渲染失败"}，额度已返还 ·{" "}
                     {canRetry
-                      ? "点击 ↻ 重新生成（消耗 1 次额度）"
-                      : "已达最大尝试次数，无法重试；可删除记录后重新创作"}
+                      ? "点击 ↻ 原参数重试，或 ✎ 重新编辑（提交时消耗 1 次额度）"
+                      : "已达最大尝试次数，请点击 ✎ 重新编辑参数后再提交（消耗 1 次额度）"}
                   </div>
                 )}
                 {cancelled && (
                   <div className="err-line">
                     已取消，额度已返还 ·{" "}
                     {canRetry
-                      ? "可点击 ↻ 重新入队（消耗 1 次额度）"
-                      : "已达最大尝试次数，无法重试；可删除记录后重新创作"}
+                      ? "可点击 ↻ 重新入队，或 ✎ 重新编辑（提交时消耗 1 次额度）"
+                      : "已达最大尝试次数，请点击 ✎ 重新编辑参数后再提交（消耗 1 次额度）"}
                   </div>
                 )}
               </div>

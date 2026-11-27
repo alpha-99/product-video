@@ -14,8 +14,9 @@ import {
 } from "../../../lib/client/api";
 import { normalizeColor, normalizeHex } from "../../../lib/client/color";
 import { invalidateAsyncCache, useAsync } from "../../../lib/client/hooks";
+import { draftFromJob } from "../../../lib/client/job-draft";
 import type {
-  AiCopyResponse, CreateVideoResult, ProductDto, RenderCopy, TemplateDto,
+  AiCopyResponse, CreateVideoResult, ProductDto, RenderCopy, TemplateDto, VideoJobDto,
 } from "../../../lib/client/types";
 
 /**
@@ -95,6 +96,10 @@ export default function CreatePage() {
   // 验收 P2-12：桌面隐藏的 tab 不应再被 tabpanel 的 aria-labelledby 引用。
   const [narrow, setNarrow] = useState(false);
 
+  // 「重新编辑」：从失败/取消任务快照恢复草稿。null 表示普通新建。
+  const [reeditJobId, setReeditJobId] = useState<string | null>(null);
+  const [reeditNotice, setReeditNotice] = useState<string | null>(null);
+
   // 不用 useSearchParams，避免静态预渲染要求 Suspense 边界。
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -103,6 +108,42 @@ export default function CreatePage() {
     if (p) setProductId(p);
     if (t) setTemplateId(t);
     if (p && t) goTo(2);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ?from=<jobId> 优先于 productId/templateId：拉取任务详情，用服务端快照回填。
+  // 归属校验由 GET /api/videos/:id 保证；草稿只作表单初值，提交仍走标准链路。
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    if (!from) return;
+    let alive = true;
+    void (async () => {
+      try {
+        const job = await api.get<VideoJobDto>(`/api/videos/${encodeURIComponent(from)}`);
+        if (!alive) return;
+        const draft = draftFromJob(job);
+        if (!draft) {
+          setReeditNotice("该任务的快照不完整，无法恢复编辑，请按原流程新建。");
+          return;
+        }
+        setReeditJobId(from);
+        setProductId(draft.productId);
+        setTemplateId(draft.templateId);
+        setCopy(draft.copy);
+        setPointsText(draft.pointsText);
+        setBrandColor(draft.brandColor);
+        setBrandColorDraft(draft.brandColor);
+        setBrandColorError(null);
+        goTo(2);
+        if (draft.droppedAdvanced.length > 0) {
+          setReeditNotice(`快照中的 ${draft.droppedAdvanced.join("、")} 本期未开放编辑，重新提交后不会保留。`);
+        }
+      } catch (error) {
+        if (alive) setReeditNotice(messageOf(error));
+      }
+    })();
+    return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -116,9 +157,20 @@ export default function CreatePage() {
 
   const product = productsQuery.data?.find((p) => p.id === productId) ?? null;
   const template = templatesQuery.data?.find((t) => t.id === templateId) ?? null;
+  // 快照里的商品可能已被删除、模板可能已被停用；查询加载完成后必须显式拦截，
+  // 否则用户填完文案才在提交时被后端拒绝，体验很差。
+  const reeditInvalid =
+    Boolean(reeditJobId) &&
+    !productsQuery.loading &&
+    !templatesQuery.loading &&
+    ((Boolean(productId) && !product) || (Boolean(templateId) && !template));
   const issues = useMemo(() => validate(copy), [copy]);
   const canSubmit =
-    Boolean(productId && templateId) && issues.length === 0 && !brandColorError && !submitting;
+    Boolean(productId && templateId) &&
+    issues.length === 0 &&
+    !brandColorError &&
+    !submitting &&
+    !reeditInvalid;
 
   /** 切换步骤时清理上一次提交的错误，避免旧提示跨步骤残留（验收 P2-12）。 */
   function goTo(next: number) {
@@ -289,6 +341,34 @@ export default function CreatePage() {
             </span>
           </div>
           <Button variant="ghost" size="sm" onClick={() => goTo(0)}>重新选择</Button>
+        </div>
+      )}
+
+      {/* 重新编辑：告知草稿来源与降级项，避免用户以为自己填的是空表单。 */}
+      {reeditJobId && (
+        <div className="boundary" role="status" style={{ marginBottom: 16 }}>
+          <div>
+            <b>已从失败任务恢复参数</b>
+            <span>文案与品牌色已带入，可修改后重新提交。提交成功会生成一条新任务，原失败记录保持不变。</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => {
+            setReeditJobId(null);
+            setReeditNotice(null);
+            goTo(0);
+          }}>重新选择</Button>
+        </div>
+      )}
+      {reeditNotice && (
+        <div className="boundary" role="status" style={{ marginBottom: 16 }}>
+          <div>
+            <b>恢复提示</b>
+            <span>{reeditNotice}</span>
+          </div>
+        </div>
+      )}
+      {reeditInvalid && (
+        <div className="error-banner" role="alert" style={{ marginBottom: 16 }}>
+          原任务引用的商品已删除或模板已停用，无法直接重新编辑。请重新选择商品与模板后再提交。
         </div>
       )}
 

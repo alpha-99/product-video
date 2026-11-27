@@ -88,13 +88,36 @@ export interface CreateVideoResult {
   created: boolean;
 }
 
+/** 任务快照里的渲染 props，与 ProductVideoPropsSchema 对齐（前端只读展示用）。 */
+export interface JobSnapshotProps {
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  price?: string;
+  originalPrice?: string;
+  discountText?: string;
+  sellingPoints: string[];
+  cta: string;
+  brandColor: string;
+  logoPath?: string;
+  musicPath?: string;
+}
+
+/** 提交时写入 input_json 的快照；Worker 只读它，不回查商品。 */
+export interface JobSnapshot {
+  jobId: string;
+  userId: string;
+  compositionId: string;
+  props: JobSnapshotProps;
+}
+
 export interface VideoJobDto {
   id: string;
   userId: string;
   productId: string;
   templateId: string;
   status: "pending" | "processing" | "completed" | "failed" | "cancelled";
-  inputJson: { props?: { title?: string; cta?: string; brandColor?: string } } | null;
+  inputJson: JobSnapshot | null;
   outputPath: string | null;
   thumbnailPath: string | null;
   errorMessage: string | null;
